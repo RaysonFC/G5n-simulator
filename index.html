@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZOOM G5n · Patch Lab</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TOPBAR
+       ═══════════════════════════════════════════════════════ -->
+  <header class="topbar">
+
+    <div class="logo">ZOOM <span>G5n</span> · PATCH LAB</div>
+
+    <div class="patch-name-area">
+      <div class="patch-num" id="currentPatchNum">001</div>
+      <input
+        class="patch-name-input"
+        id="patchNameInput"
+        type="text"
+        placeholder="PATCH NAME"
+        maxlength="16"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <div class="guitar-badge">
+      <strong>STRATO SEVEN SGT-207</strong>
+      GUITARRA ATIVA
+    </div>
+
+  </header>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SIGNAL CHAIN
+       ═══════════════════════════════════════════════════════ -->
+  <section class="signal-chain" id="signalChain">
+    <!-- Renderizado por app.js → renderChain() -->
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       BARRA DE CONTROLES
+       ═══════════════════════════════════════════════════════ -->
+  <div class="controls-row">
+    <button class="btn primary" onclick="addSlot()">+ ADD EFEITO</button>
+    <button class="btn"         onclick="clearChain()">LIMPAR</button>
+    <button class="btn"         onclick="savePatch()">SALVAR PATCH</button>
+    <button class="btn danger"  onclick="deleteCurrentPatch()">EXCLUIR</button>
+
+    <div class="slot-counter">
+      <span class="slot-counter-label">SLOTS:</span>
+      <span class="slot-counter-val" id="slotCount">0/5</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       BANCO DE PATCHES
+       ═══════════════════════════════════════════════════════ -->
+  <section class="patch-bank">
+    <div class="section-title">▌ BANCO DE PATCHES</div>
+    <div class="patch-list" id="patchList">
+      <!-- Renderizado por app.js → renderPatchList() -->
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODAL — SELETOR DE EFEITOS
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Selecionar Efeito">
+
+      <div class="modal-header">
+        <div class="modal-title">SELECIONAR EFEITO</div>
+        <button class="modal-close" onclick="closeModal()" aria-label="Fechar">✕</button>
+      </div>
+
+      <!-- Filtros de categoria -->
+      <div class="modal-cats" id="modalCats">
+        <!-- Renderizado por app.js → renderModalCats() -->
+      </div>
+
+      <!-- Grid de efeitos -->
+      <div class="fx-grid" id="fxGrid">
+        <!-- Renderizado por app.js → renderFxGrid() -->
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCRIPTS  (ordem importa)
+       ═══════════════════════════════════════════════════════ -->
+  <script src="fx-database.js"></script>
+  <script src="patches.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
