@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZOOM G5n · Patch Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0d0e10;
+    --panel: #141618;
+    --panel2: #1a1c1f;
+    --border: #2a2d33;
+    --accent: #ff6b00;
+    --accent2: #00c8ff;
+    --green: #39ff6a;
+    --red: #ff3a5c;
+    --text: #d8dde8;
+    --muted: #5a606e;
+    --slot-active: #1e2428;
+    --knob-bg: #222529;
+    --knob-ring: #3a3f48;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: linear-gradient(90deg, #0d0e10 0%, #161a20 50%, #0d0e10 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(255,107,0,0.5);
+  }
+  .logo span { color: var(--accent2); }
+
+  .guitar-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-align: right;
+  }
+  .guitar-badge strong { color: var(--green); font-size: 13px; display: block; letter-spacing: 1px; }
+
+  .patch-name-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .patch-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 28px;
+    color: var(--accent2);
+    text-shadow: 0 0 15px rgba(0,200,255,0.4);
+    min-width: 48px;
+  }
+
+  .patch-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--accent);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    width: 200px;
+    outline: none;
+    padding: 2px 4px;
+  }
+  .patch-name-input::placeholder { color: var(--muted); }
+
+  /* SIGNAL CHAIN */
+  .signal-chain {
+    padding: 20px 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    min-height: 340px;
+  }
+
+  .chain-slot {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .connector {
+    width: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--muted));
+    position: relative;
+    flex-shrink: 0;
+  }
+  .connector.active {
+    background: linear-gradient(90deg, var(--accent2), rgba(0,200,255,0.3));
+    box-shadow: 0 0 8px rgba(0,200,255,0.4);
+  }
+  .connector-start {
+    width: 28px; height: 2px;
+    background: var(--green);
+    box-shadow: 0 0 10px rgba(57,255,106,0.5);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .connector-start::before {
+    content: '▶';
+    font-size: 8px;
+    color: var(--green);
+    position: absolute;
+    left: -4px;
+    top: -5px;
+  }
+  .connector-end {
+    width: 28px; height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(255,107,0,0.5);
+    flex-shrink: 0;
+  }
+
+  .fx-block {
+    width: 140px;
+    min-height: 220px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.2s;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .fx-block:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 20px rgba(0,200,255,0.15);
+  }
+
+  .fx-block.on {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(255,107,0,0.2);
+  }
+
+  .fx-block.empty {
+    border: 1px dashed var(--border);
+    background: rgba(255,255,255,0.02);
+    cursor: default;
+  }
+
+  .fx-block.empty:hover { border-color: var(--muted); box-shadow: none; }
+
+  .fx-header {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fx-category {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+
+  .cat-dynamics { background: rgba(57,255,106,0.15); color: var(--green); }
+  .cat-filter { background: rgba(0,200,255,0.15); color: var(--accent2); }
+  .cat-drive { background: rgba(255,60,60,0.15); color: #ff5555; }
+  .cat-amp { background: rgba(255,150,0,0.15); color: #ffaa00; }
+  .cat-cabinet { background: rgba(180,100,255,0.15); color: #cc88ff; }
+  .cat-modulation { background: rgba(255,200,0,0.15); color: #ffcc00; }
+  .cat-sfx { background: rgba(255,50,150,0.15); color: #ff4499; }
+  .cat-delay { background: rgba(0,200,255,0.15); color: var(--accent2); }
+  .cat-reverb { background: rgba(100,150,255,0.15); color: #88aaff; }
+  .cat-pedal { background: rgba(255,107,0,0.15); color: var(--accent); }
+  .cat-rhythm { background: rgba(57,255,106,0.15); color: var(--green); }
+  .cat-looper { background: rgba(255,107,0,0.15); color: var(--accent); }
+
+  .power-led {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    flex-shrink: 0;
+  }
+  .power-led.on {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  .fx-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 10px 4px;
+    color: var(--text);
+  }
+
+  .fx-empty-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    padding: 20px 10px;
+    letter-spacing: 1px;
+  }
+
+  .fx-knobs {
+    padding: 6px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .knob-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .knob-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    width: 42px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .knob-track {
+    flex: 1;
+    height: 3px;
+    background: var(--knob-ring);
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .knob-fill {
+    height: 100%;
+    background: var(--accent2);
+    border-radius: 2px;
+    transition: width 0.1s;
+  }
+  .fx-block.on .knob-fill { background: var(--accent); }
+
+  .knob-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--accent2);
+    width: 26px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .fx-block.on .knob-val { color: var(--accent); }
+
+  /* ADD BUTTON */
+  .add-btn {
+    width: 140px;
+    min-height: 220px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .add-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    box-shadow: 0 0 20px rgba(0,200,255,0.1);
+  }
+  .add-btn .plus { font-size: 28px; font-weight: 300; }
+
+  /* CONTROLS ROW */
+  .controls-row {
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn.primary { border-color: var(--accent); color: var(--accent); }
+  .btn.primary:hover { background: var(--accent); color: #000; }
+  .btn.danger { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+
+  /* PATCH BANK */
+  .patch-bank {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .patch-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+
+  .patch-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .patch-item:hover { border-color: var(--accent2); }
+  .patch-item.active { border-color: var(--accent); background: rgba(255,107,0,0.08); }
+
+  .patch-num-small {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 24px;
+  }
+
+  .patch-info { flex: 1; min-width: 0; }
+  .patch-item-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .patch-item-fx {
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.hidden { display: none; }
+
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 760px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0;
+    background: var(--panel);
+    z-index: 1;
+  }
+
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+  }
+
+  .modal-close {
+    background: none; border: none;
+    color: var(--muted); font-size: 20px;
+    cursor: pointer; padding: 4px 8px;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-cats {
+    display: flex;
+    gap: 6px;
+    padding: 12px 20px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cat-filter-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .cat-filter-btn:hover, .cat-filter-btn.active {
+    border-color: var(--accent2); color: var(--accent2);
+  }
+
+  .fx-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    padding: 16px 20px;
+  }
+
+  .fx-option {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .fx-option:hover { border-color: var(--accent2); background: rgba(0,200,255,0.05); }
+
+  .fx-option-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .fx-option-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* OUTPUT SPEAKER VIZ */
+  .output-node {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(255,107,0,0.3);
+    font-size: 18px;
+    margin-top: 85px;
+    color: var(--accent);
+  }
+
+  .input-node {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(57,255,106,0.3);
+    font-size: 18px;
+    margin-top: 85px;
+    color: var(--green);
+  }
+
+  .node-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  .node-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .topbar { flex-wrap: wrap; gap: 10px; }
+    .signal-chain { padding: 16px; }
+    .controls-row { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <div class="logo">ZOOM <span>G5n</span> · PATCH LAB</div>
+  </div>
+  <div class="patch-name-area">
+    <div class="patch-num" id="currentPatchNum">001</div>
+    <input class="patch-name-input" id="patchNameInput" type="text" placeholder="PATCH NAME" maxlength="16" value="LEAD BGN">
+  </div>
+  <div class="guitar-badge">
+    <strong>STRATO SEVEN SGT-207</strong>
+    GUITARRA ATIVA
+  </div>
+</div>
+
+<!-- SIGNAL CHAIN -->
+<div class="signal-chain" id="signalChain">
+  <!-- Rendered by JS -->
+</div>
+
+<!-- CONTROLS -->
+<div class="controls-row">
+  <button class="btn primary" onclick="addSlot()">+ ADD EFEITO</button>
+  <button class="btn" onclick="clearChain()">LIMPAR</button>
+  <button class="btn" onclick="savePatch()">SALVAR PATCH</button>
+  <button class="btn danger" onclick="deleteCurrentPatch()">EXCLUIR</button>
+  <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+    <span style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px;">SLOTS: </span>
+    <span id="slotCount" style="font-family:'Share Tech Mono',monospace; font-size:14px; color:var(--accent2);">0/5</span>
+  </div>
+</div>
+
+<!-- PATCH BANK -->
+<div class="patch-bank">
+  <div class="section-title">▌ BANCO DE PATCHES</div>
+  <div class="patch-list" id="patchList"></div>
+</div>
+
+<!-- MODAL: EFFECT PICKER -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">SELECIONAR EFEITO</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-cats" id="modalCats"></div>
+    <div class="fx-grid" id="fxGrid"></div>
+  </div>
+</div>
+
+<script>
+// =========================================================
+// EFFECTS DATABASE (from G5n manual)
+// =========================================================
+const FX_DB = {
+  DYNAMICS: [
+    { name: 'Comp', desc: 'Compressor estilo MXR Dyna Comp', params: [{n:'Sense',v:5,max:10},{n:'ATTCK',v:50,max:100},{n:'Tone',v:5,max:10},{n:'VOL',v:80,max:100}] },
+    { name: 'RackComp', desc: 'Compressor com controle detalhado', params: [{n:'THRSH',v:25,max:50},{n:'Ratio',v:5,max:10},{n:'ATTCK',v:5,max:10},{n:'VOL',v:80,max:100}] },
+    { name: 'SlowATTCK', desc: 'Ataque lento – som de violino', params: [{n:'Time',v:25,max:50},{n:'Curve',v:5,max:10},{n:'Tone',v:60,max:100},{n:'VOL',v:80,max:100}] },
+    { name: 'ZNR', desc: 'Noise Reduction exclusivo ZOOM', params: [{n:'Depth',v:60,max:100},{n:'THRSH',v:40,max:100},{n:'Decay',v:50,max:100}] },
+    { name: 'MuteSW', desc: 'Mute por footswitch', params: [{n:'Edge',v:50,max:100},{n:'Speed',v:50,max:100}] },
+  ],
+  FILTER: [
+    { name: 'AutoWah', desc: 'Wah automático por dinâmica de ataque', params: [{n:'Sense',v:5,max:10},{n:'RESO',v:5,max:10},{n:'VOL',v:80,max:100}] },
+    { name: 'Resonance', desc: 'Filtro de ressonância por dinâmica', params: [{n:'Sense',v:5,max:10},{n:'RESO',v:5,max:10},{n:'VOL',v:80,max:100}] },
+    { name: 'Cry', desc: 'Modulador de voz (talking)', params: [{n:'Range',v:5,max:10},{n:'RESO',v:5,max:10},{n:'BAL',v:50,max:100}] },
+    { name: 'SeqFLTR', desc: 'Filtro sequencial estilo Z.Vex Seek-Wah', params: [{n:'Step',v:4,max:8},{n:'Speed',v:25,max:50},{n:'RESO',v:5,max:10}] },
+    { name: 'Gt GEQ', desc: 'Equalizador gráfico mono 6 bandas', params: [{n:'160Hz',v:0,max:24,offset:-12},{n:'400Hz',v:0,max:24,offset:-12},{n:'800Hz',v:0,max:24,offset:-12},{n:'3.2kHz',v:0,max:24,offset:-12},{n:'VOL',v:80,max:100}] },
+    { name: 'ParaEQ', desc: 'Equalizador paramétrico 1 banda', params: [{n:'FREQ',v:50,max:100},{n:'Q',v:50,max:100},{n:'Gain',v:0,max:24,offset:-12},{n:'VOL',v:80,max:100}] },
+    { name: 'EG FLTR', desc: 'Filtro controlado por footswitch', params: [{n:'FREQ1',v:30,max:100},{n:'FREQ2',v:70,max:100},{n:'RESO',v:50,max:100},{n:'Speed',v:50,max:100}] },
+  ],
+  DRIVE: [
+    { name: 'TS Drive', desc: 'Simulação Ibanez TS808', params: [{n:'Gain',v:50,max:100},{n:'Tone',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'EP Stomp', desc: 'Pré-amp Maestro Echoplex', params: [{n:'Gain',v:40,max:100},{n:'Bass',v:50,max:100},{n:'Treble',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'RC Boost', desc: 'Booster de clean a drive suave', params: [{n:'Gain',v:40,max:100},{n:'Bass',v:50,max:100},{n:'Treble',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'GoldDrive', desc: 'Overdrive boutique dourado', params: [{n:'Gain',v:50,max:100},{n:'Bass',v:50,max:100},{n:'Treble',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'SweetDrv', desc: 'Overdrive de som suave', params: [{n:'Gain',v:50,max:100},{n:'Tone',v:50,max:100},{n:'Focus',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'DYN Drive', desc: 'Drive cálido estilo tube amp', params: [{n:'Gain',v:50,max:100},{n:'Tone',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'RedCrunch', desc: 'Brown sound – Van Halen', params: [{n:'Gain',v:60,max:100},{n:'Tone',v:50,max:100},{n:'PRSNC',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'MetalWRLD', desc: 'Simulação BOSS Metal Zone', params: [{n:'Gain',v:70,max:100},{n:'Bass',v:50,max:100},{n:'Treble',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'TB MK1.5', desc: 'Fuzz clássico', params: [{n:'ATTCK',v:50,max:100},{n:'Tone',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'OctFuzz', desc: 'Fuzz com oitava acima', params: [{n:'Boost',v:50,max:100},{n:'Tone',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'SpotBoost', desc: 'Booster flexível', params: [{n:'Boost',v:50,max:100},{n:'Bass',v:50,max:100},{n:'Treble',v:50,max:100}] },
+    { name: 'Aco.Sim', desc: 'Simulação de violão', params: [{n:'Top',v:60,max:100},{n:'Body',v:60,max:100},{n:'Tone',v:50,max:100},{n:'VOL',v:70,max:100}] },
+  ],
+  AMP: [
+    { name: 'MS 800', desc: 'Marshall JCM800 2203', params: [{n:'Bass',v:50,max:100},{n:'MID',v:50,max:100},{n:'Treble',v:50,max:100},{n:'Gain',v:60,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'FD TWNR', desc: 'Fender \'65 Twin Reverb', params: [{n:'Bass',v:50,max:100},{n:'MID',v:50,max:100},{n:'Treble',v:50,max:100},{n:'Gain',v:40,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'UK 30A', desc: 'Combo britânico classe A', params: [{n:'Bass',v:50,max:100},{n:'Treble',v:50,max:100},{n:'Gain',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'BG MK3', desc: 'Mesa Boogie Mark III', params: [{n:'Bass',v:50,max:100},{n:'MID',v:50,max:100},{n:'Treble',v:50,max:100},{n:'Gain1',v:55,max:100},{n:'Gain2',v:60,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'XtasyBlue', desc: 'Bogner Ecstasy canal azul', params: [{n:'Bass',v:50,max:100},{n:'MID',v:50,max:100},{n:'Treble',v:50,max:100},{n:'Gain',v:60,max:100},{n:'VOL',v:70,max:100}] },
+  ],
+  CABINET: [
+    { name: 'MS4x12', desc: 'Marshall 1960 A – 4×12" Celestion', params: [{n:'D57:D421',v:50,max:100},{n:'Hi',v:50,max:100},{n:'Lo',v:50,max:100}] },
+    { name: 'FD2x12', desc: 'Fender Twin Reverb – 2×12" Jensen', params: [{n:'D57:D421',v:50,max:100},{n:'Hi',v:50,max:100},{n:'Lo',v:50,max:100}] },
+    { name: 'UK2x12', desc: 'Combo britânico – 2×12" Celestion Alnico', params: [{n:'D57:D421',v:50,max:100},{n:'Hi',v:50,max:100},{n:'Lo',v:50,max:100}] },
+    { name: 'MK3 1x12', desc: 'Mesa Boogie Mark III – 1×12" Black Shadow', params: [{n:'D57:D421',v:50,max:100},{n:'Hi',v:50,max:100},{n:'Lo',v:50,max:100}] },
+    { name: 'BGN4x12', desc: 'Bogner Ecstasy – 4×12" Celestion', params: [{n:'D57:D421',v:50,max:100},{n:'Hi',v:50,max:100},{n:'Lo',v:50,max:100}] },
+  ],
+  MODULATION: [
+    { name: 'Tremolo', desc: 'Variação de volume periódica', params: [{n:'Depth',v:60,max:100},{n:'Rate',v:30,max:100},{n:'VOL',v:80,max:100}] },
+    { name: 'Chorus', desc: 'Chorus com espessura e movimento', params: [{n:'Depth',v:60,max:100},{n:'Rate',v:25,max:50},{n:'Tone',v:5,max:10},{n:'Mix',v:50,max:100}] },
+    { name: 'StereoCho', desc: 'Chorus estéreo com tom limpo', params: [{n:'Depth',v:60,max:100},{n:'Rate',v:25,max:50},{n:'Mix',v:50,max:100}] },
+    { name: 'Phaser', desc: 'Variação de fase no som', params: [{n:'Depth',v:60,max:100},{n:'Rate',v:25,max:50},{n:'RESO',v:40,max:100}] },
+    { name: 'VinFLNGR', desc: 'Flanger analógico estilo MXR M-117R', params: [{n:'Depth',v:60,max:100},{n:'Rate',v:25,max:50},{n:'RESO',v:0,max:20,offset:-10}] },
+    { name: 'TheVibe', desc: 'Vibe com ondulações únicas', params: [{n:'Speed',v:25,max:50},{n:'Depth',v:60,max:100},{n:'VOL',v:80,max:100}] },
+    { name: 'Vibrato', desc: 'Vibrato automático', params: [{n:'Depth',v:60,max:100},{n:'Rate',v:25,max:50},{n:'BAL',v:50,max:100}] },
+    { name: 'Octave', desc: 'Adiciona oitavas abaixo', params: [{n:'OCT1',v:60,max:100},{n:'OCT2',v:0,max:100},{n:'Dry',v:80,max:100}] },
+    { name: 'Detune', desc: 'Chorus sem sensação de modulação', params: [{n:'Cent',v:50,max:100},{n:'Mix',v:50,max:100}] },
+    { name: 'PitchSHFT', desc: 'Deslocamento de pitch', params: [{n:'Shift',v:50,max:100},{n:'BAL',v:50,max:100}] },
+    { name: 'HPS', desc: 'Pitch shifter inteligente por escala', params: [{n:'Tone',v:5,max:10},{n:'Mix',v:50,max:100}] },
+    { name: 'RingMod', desc: 'Modulação em anel – som metálico', params: [{n:'FREQ',v:25,max:50},{n:'BAL',v:50,max:100},{n:'VOL',v:80,max:100}] },
+  ],
+  SFX: [
+    { name: 'Bomber', desc: 'Gera sons explosivos', params: [{n:'Decay',v:50,max:100},{n:'Tone',v:5,max:10},{n:'Mix',v:50,max:100}] },
+  ],
+  DELAY: [
+    { name: 'Delay', desc: 'Delay longo – máx. 4000ms', params: [{n:'Time',v:400,max:4000},{n:'F.B',v:30,max:100},{n:'Mix',v:40,max:100}] },
+    { name: 'AnalogDly', desc: 'Simulação de delay analógico', params: [{n:'Time',v:400,max:4000},{n:'F.B',v:30,max:100},{n:'Mix',v:40,max:100}] },
+    { name: 'TapeEcho', desc: 'Simulação de tape echo', params: [{n:'Time',v:300,max:2000},{n:'F.B',v:30,max:100},{n:'Mix',v:40,max:100}] },
+    { name: 'ReverseDL', desc: 'Delay reverso – máx. 2000ms', params: [{n:'Time',v:500,max:2000},{n:'F.B',v:20,max:100},{n:'BAL',v:40,max:100}] },
+    { name: 'ModDelay', desc: 'Delay com modulação', params: [{n:'Time',v:400,max:2000},{n:'F.B',v:30,max:100},{n:'Mix',v:40,max:100}] },
+    { name: 'Hold DLY', desc: 'Hold delay controlado por footswitch', params: [{n:'Time',v:400,max:4000},{n:'F.B',v:30,max:100},{n:'Mix',v:40,max:100}] },
+  ],
+  REVERB: [
+    { name: 'Air', desc: 'Ambiente de sala – profundidade espacial', params: [{n:'Size',v:50,max:100},{n:'REF',v:5,max:10},{n:'Mix',v:35,max:100}] },
+    { name: 'Room', desc: 'Reverb de sala', params: [{n:'PreD',v:10,max:100},{n:'Decay',v:15,max:30},{n:'Mix',v:35,max:100}] },
+    { name: 'Hall', desc: 'Reverb de salão de concerto', params: [{n:'PreD',v:20,max:100},{n:'Decay',v:20,max:30},{n:'Mix',v:35,max:100}] },
+    { name: 'HD Hall', desc: 'Hall reverb denso', params: [{n:'PreD',v:20,max:200},{n:'Decay',v:50,max:100},{n:'Mix',v:35,max:100}] },
+    { name: 'Spring', desc: 'Simulação de reverb spring', params: [{n:'PreD',v:10,max:100},{n:'Decay',v:15,max:30},{n:'Mix',v:35,max:100}] },
+    { name: 'FD Spring', desc: 'Spring reverb Fender \'65 Twin', params: [{n:'Lo',v:50,max:100},{n:'Hi',v:50,max:100},{n:'Mix',v:35,max:100}] },
+    { name: 'Plate', desc: 'Simulação de plate reverb', params: [{n:'PreD',v:10,max:200},{n:'Decay',v:50,max:100},{n:'Mix',v:35,max:100}] },
+  ],
+  PEDAL: [
+    { name: 'PDL Vol', desc: 'Volume pedal', params: [{n:'VOL',v:100,max:100},{n:'Min',v:0,max:100},{n:'Max',v:100,max:100}] },
+    { name: 'BlackWah', desc: 'Wah pedal – Cry Baby', params: [{n:'FREQ',v:50,max:100},{n:'Range',v:50,max:100},{n:'VOL',v:80,max:100}] },
+    { name: 'ChromeWah', desc: 'Wah britânico cromado', params: [{n:'FREQ',v:50,max:100},{n:'Range',v:50,max:100},{n:'VOL',v:80,max:100}] },
+    { name: 'WAH100', desc: 'Simulação Ibanez wah', params: [{n:'FREQ',v:25,max:50},{n:'Depth',v:60,max:100},{n:'VOL',v:80,max:100}] },
+    { name: 'PDL Pitch', desc: 'Pitch em tempo real via pedal', params: [{n:'Bend',v:50,max:100},{n:'Tone',v:5,max:10}] },
+    { name: 'PDL Drive', desc: 'Controle de gain via pedal', params: [{n:'Gain',v:50,max:100},{n:'Tone',v:50,max:100},{n:'VOL',v:70,max:100}] },
+    { name: 'PDL Delay', desc: 'Input de delay via pedal', params: [{n:'InLvl',v:50,max:100},{n:'Time',v:400,max:4000},{n:'F.B',v:30,max:100},{n:'Mix',v:40,max:100}] },
+    { name: 'PDL Rev', desc: 'Input de reverb via pedal', params: [{n:'InLvl',v:50,max:100},{n:'Decay',v:15,max:30},{n:'Mix',v:35,max:100}] },
+    { name: 'VoiceWah', desc: 'Guitarra soa como voz humana', params: [{n:'Vowel',v:50,max:100},{n:'Voice',v:50,max:100}] },
+    { name: 'PDL Roto', desc: 'Simulação de rotary speaker', params: [{n:'Drive',v:40,max:100},{n:'BAL',v:50,max:100},{n:'VOL',v:70,max:100}] },
+  ],
+  RHYTHM: [
+    { name: 'Rhythm', desc: 'Gerador de ritmo – 68 padrões', params: [{n:'BPM',v:120,max:250},{n:'VOL',v:60,max:100}] },
+  ],
+  LOOPER: [
+    { name: 'LP-MONO', desc: 'Looper mono', params: [{n:'VOL',v:80,max:100}] },
+    { name: 'LP-STEREO', desc: 'Looper estéreo', params: [{n:'VOL',v:80,max:100}] },
+  ],
+};
+
+const CAT_COLORS = {
+  DYNAMICS:'dynamics', FILTER:'filter', DRIVE:'drive', AMP:'amp', CABINET:'cabinet',
+  MODULATION:'modulation', SFX:'sfx', DELAY:'delay', REVERB:'reverb', PEDAL:'pedal',
+  RHYTHM:'rhythm', LOOPER:'looper'
+};
+
+// =========================================================
+// STATE
+// =========================================================
+let chain = []; // max 5 slots
+let patches = [
+  { id:1, name:'LEAD BGN', chain: [
+    deepClone(FX_DB.DRIVE.find(f=>f.name==='TS Drive')), 
+    deepClone(FX_DB.AMP.find(f=>f.name==='XtasyBlue')),
+    deepClone(FX_DB.MODULATION.find(f=>f.name==='ModDelay')),
+    deepClone(FX_DB.REVERB.find(f=>f.name==='Hall')),
+  ], cats:['DRIVE','AMP','MODULATION','REVERB'] },
+  { id:2, name:'BLUES TX', chain: [
+    deepClone(FX_DB.DRIVE.find(f=>f.name==='TS Drive')),
+    deepClone(FX_DB.AMP.find(f=>f.name==='FD TWNR')),
+    deepClone(FX_DB.DELAY.find(f=>f.name==='Delay')),
+    deepClone(FX_DB.REVERB.find(f=>f.name==='Spring')),
+  ], cats:['DRIVE','AMP','DELAY','REVERB'] },
+  { id:3, name:'CLEAN', chain: [
+    deepClone(FX_DB.DYNAMICS.find(f=>f.name==='Comp')),
+    deepClone(FX_DB.AMP.find(f=>f.name==='FD TWNR')),
+    deepClone(FX_DB.MODULATION.find(f=>f.name==='Chorus')),
+    deepClone(FX_DB.REVERB.find(f=>f.name==='Room')),
+  ], cats:['DYNAMICS','AMP','MODULATION','REVERB'] },
+];
+let currentPatchId = 1;
+let editingSlotIdx = null;
+let filterCat = 'ALL';
+
+function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+// =========================================================
+// LOAD PATCH
+// =========================================================
+function loadPatch(id) {
+  const p = patches.find(x => x.id === id);
+  if (!p) return;
+  currentPatchId = id;
+  document.getElementById('currentPatchNum').textContent = String(id).padStart(3,'0');
+  document.getElementById('patchNameInput').value = p.name;
+  chain = p.chain.map((fx,i) => ({ ...deepClone(fx), on: true, cat: p.cats[i] }));
+  renderChain();
+  renderPatchList();
+}
+
+// =========================================================
+// RENDER CHAIN
+// =========================================================
+function renderChain() {
+  const el = document.getElementById('signalChain');
+  el.innerHTML = '';
+  document.getElementById('slotCount').textContent = chain.length + '/5';
+
+  // Input node
+  const inputWrap = document.createElement('div');
+  inputWrap.className = 'node-wrap';
+  inputWrap.innerHTML = `<div class="input-node">🎸</div><div class="node-label">GUITAR\nSGT-207</div>`;
+  el.appendChild(inputWrap);
+
+  // Connector start
+  const cs = document.createElement('div');
+  cs.className = 'connector-start';
+  el.appendChild(cs);
+
+  chain.forEach((fx, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'chain-slot';
+
+    const block = document.createElement('div');
+    block.className = 'fx-block' + (fx.on ? ' on' : '');
+    block.dataset.index = i;
+
+    const catKey = (fx.cat || '').toLowerCase().replace(' ','');
+    block.innerHTML = `
+      <div class="fx-header">
+        <span class="fx-category cat-${CAT_COLORS[fx.cat] || 'drive'}">${fx.cat || ''}</span>
+        <button class="power-led ${fx.on?'on':''}" onclick="toggleFx(${i},event)"></button>
+      </div>
+      <div class="fx-name">${fx.name}</div>
+      <div class="fx-knobs">
+        ${fx.params.slice(0,4).map((p,pi) => {
+          const pct = Math.round((p.v / p.max) * 100);
+          return `<div class="knob-row">
+            <div class="knob-label">${p.n}</div>
+            <div class="knob-track" data-idx="${i}" data-pidx="${pi}" onmousedown="startDrag(event,${i},${pi})">
+              <div class="knob-fill" style="width:${pct}%"></div>
+            </div>
+            <div class="knob-val" id="kv-${i}-${pi}">${p.v}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="padding:0 10px 8px; display:flex; gap:6px;">
+        <button onclick="openPickerForSlot(${i})" style="flex:1;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;padding:5px;border:1px solid var(--border);border-radius:3px;background:transparent;color:var(--muted);cursor:pointer;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">TROCAR</button>
+        <button onclick="removeSlot(${i})" style="padding:5px 8px;border:1px solid var(--border);border-radius:3px;background:transparent;color:var(--muted);cursor:pointer;font-size:12px;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✕</button>
+      </div>
+    `;
+
+    slot.appendChild(block);
+
+    if (i < chain.length - 1) {
+      const conn = document.createElement('div');
+      conn.className = 'connector' + (fx.on ? ' active' : '');
+      slot.appendChild(conn);
+    }
+
+    el.appendChild(slot);
+  });
+
+  // Add button
+  if (chain.length < 5) {
+    const connEnd = document.createElement('div');
+    connEnd.className = 'connector' + (chain.length > 0 ? ' active' : '');
+    el.appendChild(connEnd);
+
+    const addWrap = document.createElement('div');
+    addWrap.innerHTML = `<button class="add-btn" onclick="addSlot()"><span class="plus">+</span>ADD EFEITO</button>`;
+    el.appendChild(addWrap.firstChild);
+  }
+
+  // Connector & output
+  const ce = document.createElement('div');
+  ce.className = 'connector-end';
+  el.appendChild(ce);
+
+  const outWrap = document.createElement('div');
+  outWrap.className = 'node-wrap';
+  outWrap.innerHTML = `<div class="output-node">🔊</div><div class="node-label">AMP/\nOUTPUT</div>`;
+  el.appendChild(outWrap);
+}
+
+// =========================================================
+// DRAG KNOBS
+// =========================================================
+let dragging = null;
+function startDrag(e, idx, pidx) {
+  dragging = { idx, pidx, startX: e.clientX, startV: chain[idx].params[pidx].v };
+  e.preventDefault();
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', stopDrag);
+}
+function onDrag(e) {
+  if (!dragging) return;
+  const { idx, pidx, startX, startV } = dragging;
+  const param = chain[idx].params[pidx];
+  const delta = (e.clientX - startX) * (param.max / 100);
+  let newVal = Math.round(Math.max(0, Math.min(param.max, startV + delta)));
+  param.v = newVal;
+  const pct = Math.round((newVal / param.max) * 100);
+  const track = document.querySelector(`.knob-track[data-idx="${idx}"][data-pidx="${pidx}"]`);
+  if (track) track.querySelector('.knob-fill').style.width = pct + '%';
+  const kv = document.getElementById(`kv-${idx}-${pidx}`);
+  if (kv) kv.textContent = newVal;
+}
+function stopDrag() {
+  dragging = null;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+}
+
+// =========================================================
+// FX TOGGLE
+// =========================================================
+function toggleFx(i, e) {
+  e.stopPropagation();
+  chain[i].on = !chain[i].on;
+  renderChain();
+}
+
+// =========================================================
+// ADD / REMOVE SLOT
+// =========================================================
+function addSlot() {
+  if (chain.length >= 5) return;
+  editingSlotIdx = null;
+  openModal();
+}
+
+function removeSlot(i) {
+  chain.splice(i, 1);
+  renderChain();
+}
+
+function clearChain() {
+  chain = [];
+  renderChain();
+}
+
+function openPickerForSlot(i) {
+  editingSlotIdx = i;
+  openModal();
+}
+
+// =========================================================
+// MODAL
+// =========================================================
+function openModal() {
+  filterCat = 'ALL';
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  renderModalCats();
+  renderFxGrid();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+function renderModalCats() {
+  const cats = ['ALL', ...Object.keys(FX_DB)];
+  const el = document.getElementById('modalCats');
+  el.innerHTML = cats.map(c => `<button class="cat-filter-btn ${filterCat===c?'active':''}" onclick="setCat('${c}')">${c}</button>`).join('');
+}
+
+function setCat(cat) {
+  filterCat = cat;
+  renderModalCats();
+  renderFxGrid();
+}
+
+function renderFxGrid() {
+  const el = document.getElementById('fxGrid');
+  let entries = [];
+  const cats = filterCat === 'ALL' ? Object.keys(FX_DB) : [filterCat];
+  cats.forEach(cat => {
+    FX_DB[cat].forEach(fx => entries.push({ ...fx, cat }));
+  });
+  el.innerHTML = entries.map(fx => `
+    <div class="fx-option" onclick="selectFx('${fx.cat}', '${fx.name}')">
+      <div style="margin-bottom:6px;"><span class="fx-category cat-${CAT_COLORS[fx.cat]||'drive'}">${fx.cat}</span></div>
+      <div class="fx-option-name">${fx.name}</div>
+      <div class="fx-option-desc">${fx.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectFx(cat, name) {
+  const fx = FX_DB[cat].find(f => f.name === name);
+  if (!fx) return;
+  const fxClone = { ...deepClone(fx), on: true, cat };
+  if (editingSlotIdx !== null) {
+    chain[editingSlotIdx] = fxClone;
+  } else {
+    chain.push(fxClone);
+  }
+  closeModal();
+  renderChain();
+}
+
+// =========================================================
+// SAVE / DELETE PATCH
+// =========================================================
+function savePatch() {
+  const name = document.getElementById('patchNameInput').value.trim() || 'PATCH';
+  const p = patches.find(x => x.id === currentPatchId);
+  if (p) {
+    p.name = name;
+    p.chain = chain.map(fx => {
+      const { on, cat, ...rest } = fx;
+      return deepClone(rest);
+    });
+    p.cats = chain.map(fx => fx.cat);
+  } else {
+    patches.push({ id: currentPatchId, name, chain: chain.map(fx => { const { on, cat, ...rest } = fx; return deepClone(rest); }), cats: chain.map(fx => fx.cat) });
+  }
+  renderPatchList();
+  flashSaved();
+}
+
+function flashSaved() {
+  const btn = document.querySelector('.btn.primary');
+  const orig = btn.textContent;
+  btn.textContent = '✓ SALVO';
+  btn.style.background = 'var(--green)';
+  btn.style.color = '#000';
+  btn.style.borderColor = 'var(--green)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 1200);
+}
+
+function deleteCurrentPatch() {
+  patches = patches.filter(x => x.id !== currentPatchId);
+  if (patches.length > 0) loadPatch(patches[0].id);
+  else {
+    chain = [];
+    document.getElementById('patchNameInput').value = '';
+    renderChain();
+    renderPatchList();
+  }
+}
+
+function newPatch() {
+  const newId = Math.max(...patches.map(p => p.id), 0) + 1;
+  currentPatchId = newId;
+  document.getElementById('currentPatchNum').textContent = String(newId).padStart(3,'0');
+  document.getElementById('patchNameInput').value = '';
+  chain = [];
+  renderChain();
+  renderPatchList();
+}
+
+// =========================================================
+// PATCH LIST
+// =========================================================
+function renderPatchList() {
+  const el = document.getElementById('patchList');
+  el.innerHTML = patches.map(p => `
+    <div class="patch-item ${p.id===currentPatchId?'active':''}" onclick="loadPatch(${p.id})">
+      <div class="patch-num-small">${String(p.id).padStart(3,'0')}</div>
+      <div class="patch-info">
+        <div class="patch-item-name">${p.name}</div>
+        <div class="patch-item-fx">${p.cats ? p.cats.slice(0,3).join(' · ') : ''}</div>
+      </div>
+    </div>
+  `).join('') + `<div class="patch-item" onclick="newPatch()" style="border-style:dashed;">
+    <div class="patch-num-small" style="color:var(--accent2)">+</div>
+    <div class="patch-info"><div class="patch-item-name" style="color:var(--muted)">NOVO PATCH</div></div>
+  </div>`;
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// =========================================================
+// INIT
+// =========================================================
+loadPatch(1);
+</script>
+</body>
+</html>
