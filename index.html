@@ -23,8 +23,42 @@
     </div>
   </header>
 
-  <!-- SIGNAL CHAIN -->
-  <section class="signal-chain" id="signalChain"></section>
+  <!-- ═══ HARDWARE PANEL (estilo G5n) ═══ -->
+  <section class="hw-panel">
+
+    <!-- OVERVIEW DISPLAY -->
+    <div class="overview-bar">
+      <div class="overview-label">OVERVIEW</div>
+      <div class="overview-chain" id="overviewChain"></div>
+      <div class="overview-nav">
+        <button class="ov-nav-btn" id="unitPagePrev" onclick="shiftUnitPage(-1)" title="Unidades anteriores">◀</button>
+        <span class="ov-page" id="unitPageLabel">1/1</span>
+        <button class="ov-nav-btn" id="unitPageNext" onclick="shiftUnitPage(1)" title="Próximas unidades">▶</button>
+      </div>
+    </div>
+
+    <!-- 4 UNIT DISPLAYS + FOOTSWITCHES + PEDAL -->
+    <div class="units-row">
+      <div class="units-grid" id="unitsGrid">
+        <!-- preenchido por JS: até 4 units visíveis -->
+      </div>
+
+      <!-- Expression Pedal visual -->
+      <div class="exp-pedal" title="Pedal de expressão">
+        <div class="exp-pedal-body">
+          <div class="exp-pedal-surface" id="expPedalSurface"></div>
+          <div class="exp-pedal-label">PEDAL</div>
+        </div>
+        <div class="exp-pedal-base"></div>
+      </div>
+    </div>
+
+    <!-- FOOTSWITCH ROW -->
+    <div class="fs-row" id="fsRow">
+      <!-- FS1–FS4 preenchidos por JS -->
+    </div>
+
+  </section>
 
   <!-- CONTROLS -->
   <div class="controls-row">
@@ -37,6 +71,27 @@
       <span class="slot-counter-val" id="slotCount">0/9</span>
     </div>
   </div>
+
+  <!-- DICA PEDALBOARD FÍSICO -->
+  <section class="board-tip">
+    <div class="section-title">▌ LAYOUT FÍSICO SUGERIDO (G5n + pedais)</div>
+    <div class="board-flow">
+      <span class="board-node">GUITAR</span>
+      <span class="board-arrow">→</span>
+      <span class="board-node ext">WAH / VOLUME</span>
+      <span class="board-arrow">→</span>
+      <span class="board-node ext">OVERDRIVE</span>
+      <span class="board-arrow">→</span>
+      <span class="board-node g5n">ZOOM G5n</span>
+      <span class="board-arrow">→</span>
+      <span class="board-node">AMP</span>
+    </div>
+    <p class="board-note">
+      Single-coils Strat: preferira compressão e ZNR dentro da G5n.
+      Pedais de drive externos (TS, boost) funcionam bem <strong>antes</strong> da G5n.
+      Delay/Reverb pesados ficam melhores <strong>dentro</strong> da G5n (após o amp model).
+    </p>
+  </section>
 
   <!-- PATCH BANK -->
   <section class="patch-bank">
@@ -57,11 +112,10 @@
                oninput="onFxSearch(this.value)" />
       </div>
       <div class="modal-cats" id="modalCats"></div>
-      <div class="fx-grid"    id="fxGrid"></div>
+      <div class="fx-grid" id="fxGrid"></div>
     </div>
   </div>
 
-  <!-- SCRIPTS (ordem importa) -->
   <script src="fx-database.js"></script>
   <script src="patches.js"></script>
   <script src="app.js"></script>

@@ -1,21 +1,21 @@
 # 🎸 ZOOM G5n · Patch Lab
 
-Simulador visual de patches para a pedaleira **ZOOM G5n**, baseado no manual oficial de efeitos (*Effect Types and Parameters*, 2015 ZOOM CORPORATION).
+Simulador visual de patches para a pedaleira **ZOOM G5n**, com interface inspirada no hardware real.
 
 Desenvolvido para a guitarra **Strato Seven SGT-207 NT**  
 (Basswood body · Maple neck · 3 Single-coils passivos · 6 cordas · Ponte tremolo).
 
 ---
 
-## 📁 Estrutura de arquivos
+## 📁 Arquivos
 
 ```
 g5n-patch-lab/
-├── index.html       → Estrutura HTML da aplicação
-├── styles.css       → Todos os estilos (tema dark, variáveis CSS)
-├── fx-database.js   → Banco completo de efeitos da G5n
-├── patches.js       → Patches padrão de exemplo
-├── app.js           → Lógica principal (estado, renderização, eventos)
+├── index.html       → Estrutura HTML
+├── styles.css       → Estilos (tema dark + layout hardware)
+├── fx-database.js   → Banco de efeitos da G5n
+├── patches.js       → Patches otimizados para Strat single-coil
+├── app.js           → Lógica principal
 └── README.md        → Este arquivo
 ```
 
@@ -23,107 +23,71 @@ g5n-patch-lab/
 
 ## 🚀 Como usar
 
-Basta abrir o arquivo **`index.html`** em qualquer navegador moderno.  
-Não precisa de servidor, instalação ou dependências externas.
+Abra o **`index.html`** em qualquer navegador moderno.  
+Não precisa de servidor nem instalação.
+
+Os patches são salvos automaticamente no **localStorage** do navegador.
+
+---
+
+## 🎛️ Interface estilo G5n
+
+- **Overview Display** — visão da cadeia completa (clique para focar um efeito)
+- **4 Unit Displays** — parâmetros dos efeitos (como na pedaleira real)
+- **Footswitches FS1–FS4** — ligar/desligar efeitos da página atual
+- **Pedal de expressão** — visual (indicador de params com flag P)
+- Navegação ◀ ▶ quando houver mais de 4 efeitos
+
+### Outras funções
+- Até **9 efeitos** por patch (limite G5n V2.0)
+- **Busca** de efeitos por nome/descrição
+- Filtro por categoria
+- Drag horizontal nos parâmetros numéricos
+- Clique para ciclar parâmetros de seleção
+
+---
+
+## 🎸 Patches para SGT-207 NT
+
+| # | Nome | Estilo |
+|---|------|--------|
+| 001 | CLEAN STRAT | Clean clássico Strat + chorus + room |
+| 002 | BLUES TX | Blues texano / SRV (TS + Twin + Tape Echo) |
+| 003 | BRIT CRUNCH | Crunch britânico (UK 30A) |
+| 004 | LEAD BGN | Lead moderno Bogner |
+| 005 | FUNK WAH | Funk com wah + phaser |
+| 006 | THE EDGE | Delay ritmico estilo U2 |
+| 007 | ACOUSTIC | Simulação de violão |
+| 008 | GILMOUR | Pink Floyd (phaser + delay longo) |
+| 009 | HARD ROCK | Rock clássico (MS 800) |
+| 010 | SMOOTH JZ | Jazz suave |
+| 011 | STRINGS | Pad atmosférico (Slow Attack) |
+| 012 | LOOPER JAM | Ritmo + looper para prática |
+
+---
+
+## 🔌 Layout físico sugerido
 
 ```
-Abrir com duplo clique → index.html
+GUITAR → WAH/VOLUME → OVERDRIVE → ZOOM G5n → AMP
 ```
 
----
-
-## 🎛️ Funcionalidades
-
-### Cadeia de Sinal
-- Monte até **9 efeitos em série** (limite do G5n V2.0)
-- **Persistência automática** via localStorage (patches não somem ao recarregar)
-- **Busca de efeitos** por nome/descrição no modal
-- Visualização em tempo real da cadeia de sinal com conectores animados
-- **Ligar/Desligar** cada efeito individualmente (LED verde)
-- **Trocar** qualquer efeito no slot sem perder a posição na cadeia
-- **Remover** efeitos individualmente com o botão ✕
-
-### Parâmetros
-- **Arraste horizontal** nas barras de parâmetro para ajustar valores
-- Até **4 parâmetros visíveis** por efeito (os mais importantes)
-- Valores atualizados em tempo real durante o arraste
-
-### Banco de Patches
-- Salve patches com nome customizado (até 16 caracteres)
-- Carregue patches clicando na lista
-- Crie patches novos com o botão **"+ NOVO PATCH"**
-- Exclua o patch ativo com o botão **EXCLUIR**
+- Pedais de drive externos (TS, boost) funcionam bem **antes** da G5n
+- Delay/Reverb pesados ficam melhores **dentro** da G5n (após o amp model)
+- Single-coils: use Comp ou ZNR no início da cadeia para controlar ruído
 
 ---
 
-## 🎚️ Efeitos disponíveis
+## 💡 Dicas SGT-207 NT
 
-Todos os efeitos do manual da G5n estão incluídos:
-
-| Categoria   | Efeitos |
-|-------------|---------|
-| **DYNAMICS**   | Comp, RackComp, SlowATTCK, ZNR, MuteSW |
-| **FILTER**     | AutoWah, Resonance, Cry, SeqFLTR, Gt GEQ, Gt GEQ7, St Gt GEQ, ParaEQ, EG FLTR |
-| **DRIVE**      | TS Drive, EP Stomp, RC Boost, GoldDrive, SweetDrv, DYN Drive, RedCrunch, MetalWRLD, TB MK1.5, OctFuzz, SpotBoost, Aco.Sim |
-| **AMP**        | MS 800 (Marshall JCM800), FD TWNR (Fender Twin), UK 30A, BG MK3 (Mesa Boogie), XtasyBlue (Bogner) |
-| **CABINET**    | MS4x12, FD2x12, UK2x12, MK3 1x12, BGN4x12 |
-| **MODULATION** | Tremolo, Chorus, StereoCho, Phaser, VinFLNGR, TheVibe, Vibrato, Octave, Detune, PitchSHFT, MonoPitch, HPS, RingMod, Kick FLNG |
-| **SFX**        | Bomber |
-| **DELAY**      | Delay, AnalogDly, TapeEcho, ReverseDL, ModDelay, Hold DLY, PDL Delay |
-| **REVERB**     | Air, Room, Hall, HD Hall, Spring, FD Spring, Plate |
-| **PEDAL**      | PDL Vol, BlackWah, ChromeWah, WAH100, PDL Pitch, PDL MnPit, PDL Vibe, PDL Drive, PDL PHSR, PDL Rev, OSC Echo, VoiceWah, PDL Roto |
-| **RHYTHM**     | Rhythm (68 padrões) |
-| **LOOPER**     | LP-MONO, LP-STEREO |
-
----
-
-## 🎸 Patches de exemplo
-
-| # | Nome | Cadeia | Inspiração |
-|---|------|--------|------------|
-| 001 | LEAD BGN | TS Drive → XtasyBlue → ModDelay → Hall | Lead moderno |
-| 002 | BLUES TX | TS Drive → FD TWNR → TapeEcho → Spring | Blues texano |
-| 003 | CLEAN ARPG | Comp → FD TWNR → Chorus → Room | Clean para arpejos |
-| 004 | METAL SGT | ZNR → MetalWRLD → MS 800 → HD Hall | Metal pesado SGT-207 |
-| 005 | FUNK WAH | BlackWah → FD TWNR → Phaser → AnalogDly | Funk com wah |
-
----
-
-## 🛠️ Tecnologias
-
-- **HTML5** semântico
-- **CSS3** puro (variáveis CSS, Grid, Flexbox, animações)
-- **JavaScript** vanilla (sem frameworks, sem dependências)
-- Google Fonts: `Share Tech Mono` + `Barlow Condensed` + `Barlow`
+- Amps que combinam bem com single-coil: **FD TWNR**, **UK 30A**, **MS 800** (canal LO)
+- BRGHT = ON no Twin ajuda a recuperar o “sparkle” Strat
+- Gain baixo + boost de TS antes do amp = dinamismo clássico Strat
 
 ---
 
 ## 📖 Referência
 
-Baseado no manual oficial:  
-**ZOOM G5n Effect Types and Parameters** — © 2015 ZOOM CORPORATION  
-Código do documento: Z2I-2556-02
+Baseado no manual oficial ZOOM G5n Effect Types and Parameters.
 
-> Os nomes de fabricantes e produtos mencionados são marcas registradas de seus respectivos proprietários e são usados apenas para descrever características sonoras.
-
----
-
-## 💡 Dicas de uso
-
-**Para montar um patch do zero:**
-1. Clique em **"+ ADD EFEITO"** ou no botão verde na cadeia
-2. Filtre por categoria (DRIVE, AMP, REVERB…)
-3. Clique no efeito para adicioná-lo à cadeia
-4. Repita para os demais efeitos
-5. Ajuste os parâmetros arrastando as barras
-6. Dê um nome e clique em **"SALVAR PATCH"**
-
-**Ordem recomendada da cadeia (padrão pedaleira):**
-```
-DYNAMICS → FILTER → DRIVE → AMP → CABINET → MODULATION → DELAY → REVERB
-```
-
-**Dica para a SGT-207 NT (Strat single-coil):**  
-- Single-coils gostam de **Comp** ou **ZNR** no início para controlar ruído em gains altos.  
-- Amp models que combinam bem: **FD TWNR**, **UK 30A**, **MS 800** (canal LO).  
-- Use o campo de **busca** no seletor de efeitos para encontrar rapidamente o que precisa.
+> Nomes de fabricantes e produtos são marcas registradas e usados apenas para descrever características sonoras.

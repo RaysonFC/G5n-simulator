@@ -1,23 +1,16 @@
 /**
  * app.js
- * ZOOM G5n Patch Lab — Lógica principal
+ * ZOOM G5n Patch Lab — Layout estilo hardware
  *
- * Suporte completo a:
- *  • Até 9 efeitos (G5n V2.0)
- *  • Persistência com localStorage
- *  • Busca de efeitos no modal
- *  • Parâmetros numéricos (slider drag)
- *  • Parâmetros de seleção (options[]) com clique para ciclar
- *  • Indicadores de pedal (P) e tempo (♩)
- *  • Parâmetros com valor mínimo negativo (min < 0)
+ * • Overview Display + 4 Unit Displays + Footswitches + Pedal
+ * • Até 9 efeitos (G5n V2.0)
+ * • Persistência localStorage
+ * • Busca de efeitos
  */
 
-/* ════════════════════════════════════════════════
-   ESTADO GLOBAL
-   ════════════════════════════════════════════════ */
-
-const MAX_SLOTS = 9;          // G5n V2.0 permite até 9 efeitos
-const STORAGE_KEY = 'g5n-patch-lab-v1';
+const MAX_SLOTS = 9;
+const UNITS_PER_PAGE = 4;
+const STORAGE_KEY = 'g5n-patch-lab-v2';
 
 let chain          = [];
 let patches        = [];
@@ -25,11 +18,9 @@ let currentPatchId = 1;
 let editingSlotIdx = null;
 let filterCat      = 'ALL';
 let searchQuery    = '';
+let unitPage       = 0; // página das 4 units visíveis
 
-/* ════════════════════════════════════════════════
-   UTILITÁRIOS
-   ════════════════════════════════════════════════ */
-
+/* ─── UTIL ───────────────────────────────────────────────────── */
 function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -52,19 +43,15 @@ function showToast(msg, color) {
   t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2000);
 }
 
-/* ════════════════════════════════════════════════
-   PERSISTÊNCIA (localStorage)
-   ════════════════════════════════════════════════ */
-
+/* ─── STORAGE ────────────────────────────────────────────────── */
 function saveToStorage() {
   try {
-    var data = {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
       patches: patches,
       currentPatchId: currentPatchId
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }));
   } catch (e) {
-    console.warn('Não foi possível salvar no localStorage', e);
+    console.warn('localStorage save failed', e);
   }
 }
 
@@ -74,15 +61,11 @@ function loadFromStorage() {
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (e) {
-    console.warn('Erro ao ler localStorage', e);
     return null;
   }
 }
 
-/* ════════════════════════════════════════════════
-   INICIALIZAÇÃO
-   ════════════════════════════════════════════════ */
-
+/* ─── INIT ───────────────────────────────────────────────────── */
 function init() {
   var stored = loadFromStorage();
   if (stored && stored.patches && stored.patches.length > 0) {
@@ -95,10 +78,7 @@ function init() {
   loadPatch(currentPatchId);
 }
 
-/* ════════════════════════════════════════════════
-   CARREGAR PATCH
-   ════════════════════════════════════════════════ */
-
+/* ─── LOAD PATCH ─────────────────────────────────────────────── */
 function loadPatch(id) {
   var p = patches.find(function(x){ return x.id === id; });
   if (!p) return;
@@ -111,162 +91,171 @@ function loadPatch(id) {
     return Object.assign({}, deepClone(fx), { on: true, cat: p.cats[i] || 'DRIVE' });
   });
 
-  renderChain();
-  renderPatchList();
-  saveToStorage(); // lembra qual patch estava ativo
+  unitPage = 0;
+  renderAll();
+  saveToStorage();
 }
 
-/* ════════════════════════════════════════════════
-   RENDERIZAR CADEIA
-   ════════════════════════════════════════════════ */
+function renderAll() {
+  renderOverview();
+  renderUnits();
+  renderFootswitches();
+  renderPatchList();
+  updateSlotCount();
+}
 
-function renderChain() {
-  var el = document.getElementById('signalChain');
-  el.innerHTML = '';
+function updateSlotCount() {
+  var el = document.getElementById('slotCount');
+  el.textContent = chain.length + '/' + MAX_SLOTS;
+  if (chain.length >= MAX_SLOTS) el.style.color = 'var(--red)';
+  else if (chain.length >= 7) el.style.color = 'var(--yellow)';
+  else el.style.color = 'var(--accent2)';
+}
 
-  var countEl = document.getElementById('slotCount');
-  countEl.textContent = chain.length + '/' + MAX_SLOTS;
-  // Destaque visual quando próximo do limite
-  if (chain.length >= MAX_SLOTS) {
-    countEl.style.color = 'var(--red)';
-  } else if (chain.length >= 7) {
-    countEl.style.color = 'var(--yellow)';
-  } else {
-    countEl.style.color = 'var(--accent2)';
-  }
+/* ─── OVERVIEW ───────────────────────────────────────────────── */
+function renderOverview() {
+  var el = document.getElementById('overviewChain');
+  var html = '';
 
-  el.appendChild(makeNode('input-node', '🎸', 'GUITAR\nSGT-207'));
-  el.appendChild(makeConnector('connector-start'));
+  html += '<div class="ov-node io">GUITAR</div><span class="ov-arrow">→</span>';
 
   chain.forEach(function(fx, i){
-    var slot = document.createElement('div');
-    slot.className = 'chain-slot';
-    slot.appendChild(makeFxBlock(fx, i));
-    if (i < chain.length - 1) {
-      slot.appendChild(makeConnector('connector' + (fx.on ? ' active' : '')));
-    }
-    el.appendChild(slot);
+    var pageStart = unitPage * UNITS_PER_PAGE;
+    var pageEnd = pageStart + UNITS_PER_PAGE;
+    var isActive = i >= pageStart && i < pageEnd;
+    var cls = 'ov-node' + (isActive ? ' active' : '') + (fx.on ? '' : ' off');
+    html += '<div class="' + cls + '" onclick="focusUnit(' + i + ')" title="' + fx.name + '">' +
+            fx.name + '</div>';
+    if (i < chain.length - 1) html += '<span class="ov-arrow">→</span>';
   });
+
+  if (chain.length > 0) html += '<span class="ov-arrow">→</span>';
+  html += '<div class="ov-node io out">AMP</div>';
 
   if (chain.length < MAX_SLOTS) {
-    el.appendChild(makeConnector('connector' + (chain.length > 0 ? ' active' : '')));
-    var addBtn = document.createElement('button');
-    addBtn.className = 'add-btn';
-    addBtn.innerHTML = '<span class="plus">+</span>ADD EFEITO';
-    addBtn.onclick = addSlot;
-    el.appendChild(addBtn);
+    html += '<button class="ov-add" onclick="addSlot()" title="Adicionar efeito">+</button>';
   }
 
-  el.appendChild(makeConnector('connector-end'));
-  el.appendChild(makeNode('output-node', '🔊', 'AMP /\nOUTPUT'));
+  el.innerHTML = html;
+
+  // page label
+  var totalPages = Math.max(1, Math.ceil(chain.length / UNITS_PER_PAGE));
+  document.getElementById('unitPageLabel').textContent = (unitPage + 1) + '/' + totalPages;
+  document.getElementById('unitPagePrev').disabled = unitPage <= 0;
+  document.getElementById('unitPageNext').disabled = unitPage >= totalPages - 1;
 }
 
-function makeNode(cls, emoji, label) {
-  var wrap = document.createElement('div');
-  wrap.className = 'node-wrap';
-  var node = document.createElement('div');
-  node.className = cls;
-  node.textContent = emoji;
-  var lbl = document.createElement('div');
-  lbl.className = 'node-label';
-  lbl.textContent = label;
-  wrap.appendChild(node);
-  wrap.appendChild(lbl);
-  return wrap;
+function shiftUnitPage(dir) {
+  var totalPages = Math.max(1, Math.ceil(chain.length / UNITS_PER_PAGE));
+  unitPage = Math.max(0, Math.min(totalPages - 1, unitPage + dir));
+  renderOverview();
+  renderUnits();
+  renderFootswitches();
 }
 
-function makeConnector(classes) {
-  var div = document.createElement('div');
-  div.className = classes;
-  return div;
+function focusUnit(idx) {
+  unitPage = Math.floor(idx / UNITS_PER_PAGE);
+  renderOverview();
+  renderUnits();
+  renderFootswitches();
 }
 
-function makeFxBlock(fx, i) {
-  var block = document.createElement('div');
-  block.className = 'fx-block' + (fx.on ? ' on' : '');
+/* ─── UNITS (4 displays) ─────────────────────────────────────── */
+function renderUnits() {
+  var el = document.getElementById('unitsGrid');
+  var start = unitPage * UNITS_PER_PAGE;
+  var html = '';
 
-  // ── header
-  var header = document.createElement('div');
-  header.className = 'fx-header';
-  header.innerHTML =
-    '<span class="fx-category cat-' + (CAT_COLORS[fx.cat] || 'drive') + '">' + (fx.cat || '') + '</span>' +
-    '<button class="power-led ' + (fx.on ? 'on' : '') + '" title="Ligar/Desligar" onclick="toggleFx(' + i + ',event)"></button>';
-  block.appendChild(header);
+  for (var u = 0; u < UNITS_PER_PAGE; u++) {
+    var i = start + u;
+    if (i < chain.length) {
+      html += makeUnitCard(chain[i], i);
+    } else if (i === chain.length && chain.length < MAX_SLOTS) {
+      html += '<div class="unit-card empty" onclick="addSlot()">' +
+              '<div class="unit-empty-label"><span class="plus">+</span>ADD EFEITO</div></div>';
+    } else {
+      html += '<div class="unit-card empty" style="opacity:0.25;cursor:default">' +
+              '<div class="unit-empty-label">—</div></div>';
+    }
+  }
+  el.innerHTML = html;
+}
 
-  // ── nome
-  var nameEl = document.createElement('div');
-  nameEl.className = 'fx-name';
-  nameEl.textContent = fx.name;
-  block.appendChild(nameEl);
+function makeUnitCard(fx, i) {
+  var onCls = fx.on ? ' on' : ' off';
+  var html = '<div class="unit-card' + onCls + '">';
 
-  // ── parâmetros (máx 4 visíveis)
-  var knobsWrap = document.createElement('div');
-  knobsWrap.className = 'fx-knobs';
+  // header
+  html += '<div class="unit-header">' +
+    '<span class="unit-cat cat-' + (CAT_COLORS[fx.cat] || 'drive') + '">' + (fx.cat || '') + '</span>' +
+    '<button class="power-led ' + (fx.on ? 'on' : '') + '" title="Ligar/Desligar" onclick="toggleFx(' + i + ',event)"></button>' +
+    '</div>';
 
+  // name
+  html += '<div class="unit-name">' + fx.name + '</div>';
+
+  // knobs (max 4)
+  html += '<div class="unit-knobs">';
   fx.params.slice(0, 4).forEach(function(p, pi){
-    var row = document.createElement('div');
-    row.className = 'knob-row';
-
-    // Indicadores pedal / tempo
     var indicators = '';
-    if (p.pedal) indicators += '<span class="param-flag pedal" title="Controlável pelo pedal">P</span>';
-    if (p.tempo) indicators += '<span class="param-flag tempo" title="Sincronizável com BPM">♩</span>';
-
-    var labelHtml = '<div class="knob-label" title="' + p.n + '">' + p.n + '</div>';
+    if (p.pedal) indicators += '<span class="param-flag pedal" title="Pedal">P</span>';
+    if (p.tempo) indicators += '<span class="param-flag tempo" title="Tempo">♩</span>';
+    var label = '<div class="knob-label" title="' + p.n + '">' + p.n + '</div>';
 
     if (p.options) {
-      // Parâmetro de seleção – clique para ciclar
       var opt = p.options[p.v] || p.options[0];
-      row.innerHTML =
-        labelHtml +
-        '<div class="knob-select" id="ks-' + i + '-' + pi + '" ' +
-        'onclick="cycleOption(' + i + ',' + pi + ')" title="Clique para mudar">' +
-        opt + '</div>' +
-        indicators;
+      html += '<div class="knob-row">' + label +
+        '<div class="knob-select" id="ks-' + i + '-' + pi + '" onclick="cycleOption(' + i + ',' + pi + ')">' +
+        opt + '</div>' + indicators + '</div>';
     } else {
-      // Parâmetro numérico – drag
-      var min  = (p.min !== undefined ? p.min : 0);
+      var min = (p.min !== undefined ? p.min : 0);
       var range = p.max - min;
-      var pct  = Math.round(((p.v - min) / range) * 100);
-      row.innerHTML =
-        labelHtml +
-        '<div class="knob-track" data-idx="' + i + '" data-pidx="' + pi + '" ' +
-        'onmousedown="startDrag(event,' + i + ',' + pi + ')" ' +
-        'ontouchstart="startDragTouch(event,' + i + ',' + pi + ')" ' +
-        'title="Arraste para ajustar">' +
-        '<div class="knob-fill" id="kf-' + i + '-' + pi + '" style="width:' + pct + '%"></div>' +
-        '</div>' +
+      var pct = Math.round(((p.v - min) / range) * 100);
+      html += '<div class="knob-row">' + label +
+        '<div class="knob-track" onmousedown="startDrag(event,' + i + ',' + pi + ')" ' +
+        'ontouchstart="startDragTouch(event,' + i + ',' + pi + ')">' +
+        '<div class="knob-fill" id="kf-' + i + '-' + pi + '" style="width:' + pct + '%"></div></div>' +
         '<div class="knob-val" id="kv-' + i + '-' + pi + '">' + p.v + '</div>' +
-        indicators;
+        indicators + '</div>';
     }
-    knobsWrap.appendChild(row);
   });
-
-  // Se há mais de 4 parâmetros, mostrar indicador
   if (fx.params.length > 4) {
-    var moreEl = document.createElement('div');
-    moreEl.className = 'params-more';
-    moreEl.textContent = '+' + (fx.params.length - 4) + ' params';
-    knobsWrap.appendChild(moreEl);
+    html += '<div class="params-more">+' + (fx.params.length - 4) + ' params</div>';
   }
+  html += '</div>';
 
-  block.appendChild(knobsWrap);
+  // actions
+  html += '<div class="unit-actions">' +
+    '<button class="unit-action-btn" onclick="openPickerForSlot(' + i + ')">TROCAR</button>' +
+    '<button class="unit-action-btn rm" onclick="removeSlot(' + i + ')">✕</button>' +
+    '</div>';
 
-  // ── botões de ação
-  var actions = document.createElement('div');
-  actions.className = 'fx-actions';
-  actions.innerHTML =
-    '<button class="fx-action-btn" onclick="openPickerForSlot(' + i + ')">TROCAR</button>' +
-    '<button class="fx-action-btn rm" onclick="removeSlot(' + i + ')">✕</button>';
-  block.appendChild(actions);
-
-  return block;
+  html += '</div>';
+  return html;
 }
 
-/* ════════════════════════════════════════════════
-   CICLAR OPÇÃO (parâmetros enum)
-   ════════════════════════════════════════════════ */
+/* ─── FOOTSWITCHES ───────────────────────────────────────────── */
+function renderFootswitches() {
+  var el = document.getElementById('fsRow');
+  var start = unitPage * UNITS_PER_PAGE;
+  var html = '';
 
+  for (var u = 0; u < UNITS_PER_PAGE; u++) {
+    var i = start + u;
+    if (i < chain.length) {
+      var fx = chain[i];
+      var cls = 'fs-btn' + (fx.on ? ' active' : '');
+      html += '<button class="' + cls + '" onclick="toggleFx(' + i + ',event)">' +
+              'FS' + (u + 1) +
+              '<span class="fs-name">' + fx.name + '</span></button>';
+    } else {
+      html += '<button class="fs-btn empty">FS' + (u + 1) + '</button>';
+    }
+  }
+  el.innerHTML = html;
+}
+
+/* ─── PARAM CONTROLS ─────────────────────────────────────────── */
 function cycleOption(idx, pidx) {
   var p = chain[idx].params[pidx];
   if (!p.options) return;
@@ -274,10 +263,6 @@ function cycleOption(idx, pidx) {
   var el = document.getElementById('ks-' + idx + '-' + pidx);
   if (el) el.textContent = p.options[p.v];
 }
-
-/* ════════════════════════════════════════════════
-   DRAG NOS PARÂMETROS NUMÉRICOS
-   ════════════════════════════════════════════════ */
 
 var dragging = null;
 
@@ -296,11 +281,7 @@ function startDragTouch(e, idx, pidx) {
   document.addEventListener('touchend', stopDrag);
 }
 
-function onDrag(e) {
-  if (!dragging) return;
-  updateDrag(e.clientX);
-}
-
+function onDrag(e) { if (dragging) updateDrag(e.clientX); }
 function onDragTouch(e) {
   if (!dragging) return;
   e.preventDefault();
@@ -308,19 +289,18 @@ function onDragTouch(e) {
 }
 
 function updateDrag(clientX) {
-  var idx  = dragging.idx;
-  var pidx = dragging.pidx;
-  var p    = chain[idx].params[pidx];
-  var min  = (p.min !== undefined ? p.min : 0);
+  var idx = dragging.idx, pidx = dragging.pidx;
+  var p = chain[idx].params[pidx];
+  var min = (p.min !== undefined ? p.min : 0);
   var range = p.max - min;
   var delta = (clientX - dragging.startX) * (range / 120);
   var newVal = Math.round(Math.max(min, Math.min(p.max, dragging.startV + delta)));
   p.v = newVal;
   var pct = Math.round(((newVal - min) / range) * 100);
   var fill = document.getElementById('kf-' + idx + '-' + pidx);
-  var val  = document.getElementById('kv-' + idx + '-' + pidx);
+  var val = document.getElementById('kv-' + idx + '-' + pidx);
   if (fill) fill.style.width = pct + '%';
-  if (val)  val.textContent  = newVal;
+  if (val) val.textContent = newVal;
 }
 
 function stopDrag() {
@@ -331,14 +311,12 @@ function stopDrag() {
   document.removeEventListener('touchend', stopDrag);
 }
 
-/* ════════════════════════════════════════════════
-   CONTROLES DA CADEIA
-   ════════════════════════════════════════════════ */
-
+/* ─── CHAIN CONTROLS ─────────────────────────────────────────── */
 function toggleFx(i, e) {
-  e.stopPropagation();
+  if (e) e.stopPropagation();
+  if (i < 0 || i >= chain.length) return;
   chain[i].on = !chain[i].on;
-  renderChain();
+  renderAll();
 }
 
 function addSlot() {
@@ -352,13 +330,16 @@ function addSlot() {
 
 function removeSlot(i) {
   chain.splice(i, 1);
-  renderChain();
+  var totalPages = Math.max(1, Math.ceil(chain.length / UNITS_PER_PAGE));
+  if (unitPage >= totalPages) unitPage = Math.max(0, totalPages - 1);
+  renderAll();
 }
 
 function clearChain() {
   if (chain.length === 0) return;
   chain = [];
-  renderChain();
+  unitPage = 0;
+  renderAll();
   showToast('CADEIA LIMPA');
 }
 
@@ -367,17 +348,13 @@ function openPickerForSlot(i) {
   openModal();
 }
 
-/* ════════════════════════════════════════════════
-   MODAL – SELETOR DE EFEITOS
-   ════════════════════════════════════════════════ */
-
+/* ─── MODAL ──────────────────────────────────────────────────── */
 function openModal() {
   filterCat = 'ALL';
   searchQuery = '';
   var searchEl = document.getElementById('fxSearch');
   if (searchEl) searchEl.value = '';
   document.getElementById('modalOverlay').classList.remove('hidden');
-  // Foco no campo de busca para digitar rápido
   setTimeout(function(){ if (searchEl) searchEl.focus(); }, 50);
   renderModalCats();
   renderFxGrid();
@@ -396,7 +373,7 @@ function onFxSearch(value) {
 
 function renderModalCats() {
   var cats = ['ALL'].concat(Object.keys(FX_DB));
-  var el   = document.getElementById('modalCats');
+  var el = document.getElementById('modalCats');
   el.innerHTML = cats.map(function(c){
     var count = c === 'ALL'
       ? Object.values(FX_DB).reduce(function(s,a){ return s + a.length; }, 0)
@@ -413,14 +390,13 @@ function setCat(cat) {
 }
 
 function renderFxGrid() {
-  var el   = document.getElementById('fxGrid');
+  var el = document.getElementById('fxGrid');
   var cats = filterCat === 'ALL' ? Object.keys(FX_DB) : [filterCat];
   var entries = [];
   cats.forEach(function(cat){
     FX_DB[cat].forEach(function(fx){ entries.push(Object.assign({}, fx, { cat: cat })); });
   });
 
-  // Filtro por busca (nome ou descrição)
   if (searchQuery) {
     entries = entries.filter(function(fx){
       return fx.name.toLowerCase().indexOf(searchQuery) !== -1 ||
@@ -429,7 +405,7 @@ function renderFxGrid() {
   }
 
   if (entries.length === 0) {
-    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--muted);font-family:var(--mono);font-size:13px;letter-spacing:1px;">NENHUM EFEITO ENCONTRADO</div>';
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--muted);font-family:var(--mono);font-size:13px;">NENHUM EFEITO ENCONTRADO</div>';
     return;
   }
 
@@ -441,13 +417,11 @@ function renderFxGrid() {
     if (fx.params.some(function(p){ return p.tempo; })) flags += '<span class="param-flag tempo">♩</span>';
     return '<div class="fx-option" onclick="selectFx(\'' + fx.cat + '\',\'' + safeName + '\')">' +
            '<div class="fx-option-header">' +
-           '<span class="fx-category cat-' + (CAT_COLORS[fx.cat] || 'drive') + '">' + fx.cat + '</span>' +
-           flags +
-           '</div>' +
+           '<span class="unit-cat cat-' + (CAT_COLORS[fx.cat] || 'drive') + '">' + fx.cat + '</span>' +
+           flags + '</div>' +
            '<div class="fx-option-name">' + fx.name + '</div>' +
            '<div class="fx-option-desc">' + fx.desc + '</div>' +
-           '<div class="fx-option-params">' + paramNames + '</div>' +
-           '</div>';
+           '<div class="fx-option-params">' + paramNames + '</div></div>';
   }).join('');
 }
 
@@ -461,40 +435,34 @@ function selectFx(cat, name) {
     showToast('SLOT ' + (editingSlotIdx + 1) + ' ATUALIZADO');
   } else {
     chain.push(fx);
+    unitPage = Math.floor((chain.length - 1) / UNITS_PER_PAGE);
     showToast(fx.name + ' ADICIONADO');
   }
 
   closeModal();
-  renderChain();
+  renderAll();
 }
 
-/* ════════════════════════════════════════════════
-   BANCO DE PATCHES
-   ════════════════════════════════════════════════ */
-
+/* ─── PATCH BANK ─────────────────────────────────────────────── */
 function savePatch() {
   var name = (document.getElementById('patchNameInput').value.trim() || 'PATCH')
     .toUpperCase().slice(0, 16);
 
   var existing = patches.find(function(x){ return x.id === currentPatchId; });
-
   var data = {
-    id:    currentPatchId,
-    name:  name,
+    id: currentPatchId,
+    name: name,
     chain: chain.map(function(fx){
       var c = deepClone(fx);
       delete c.on;
       delete c.cat;
       return c;
     }),
-    cats: chain.map(function(fx){ return fx.cat; }),
+    cats: chain.map(function(fx){ return fx.cat; })
   };
 
-  if (existing) {
-    Object.assign(existing, data);
-  } else {
-    patches.push(data);
-  }
+  if (existing) Object.assign(existing, data);
+  else patches.push(data);
 
   saveToStorage();
   renderPatchList();
@@ -510,8 +478,8 @@ function deleteCurrentPatch() {
     currentPatchId = 1;
     document.getElementById('currentPatchNum').textContent = '001';
     document.getElementById('patchNameInput').value = '';
-    renderChain();
-    renderPatchList();
+    unitPage = 0;
+    renderAll();
   }
   saveToStorage();
   showToast('PATCH EXCLUÍDO', 'var(--red)');
@@ -523,18 +491,12 @@ function newPatch() {
   document.getElementById('currentPatchNum').textContent = String(currentPatchId).padStart(3, '0');
   document.getElementById('patchNameInput').value = '';
   chain = [];
-  renderChain();
-  renderPatchList();
-  // Não salva ainda – só quando o usuário clicar em SALVAR PATCH
+  unitPage = 0;
+  renderAll();
 }
-
-/* ════════════════════════════════════════════════
-   LISTA DE PATCHES
-   ════════════════════════════════════════════════ */
 
 function renderPatchList() {
   var el = document.getElementById('patchList');
-
   var html = patches.map(function(p){
     var active = p.id === currentPatchId ? ' active' : '';
     return '<div class="patch-item' + active + '" onclick="loadPatch(' + p.id + ')">' +
@@ -542,30 +504,23 @@ function renderPatchList() {
            '<div class="patch-item-info">' +
            '<div class="patch-item-name">' + p.name + '</div>' +
            '<div class="patch-item-fx">' + (p.cats || []).slice(0,3).join(' · ') + '</div>' +
-           '</div>' +
-           '</div>';
+           '</div></div>';
   }).join('');
 
   html += '<div class="patch-item new-patch" onclick="newPatch()">' +
           '<div class="patch-num-small">+</div>' +
-          '<div class="patch-item-info"><div class="patch-item-name">NOVO PATCH</div></div>' +
-          '</div>';
+          '<div class="patch-item-info"><div class="patch-item-name">NOVO PATCH</div></div></div>';
 
   el.innerHTML = html;
 }
 
-/* ════════════════════════════════════════════════
-   INICIALIZAR AO CARREGAR A PÁGINA
-   ════════════════════════════════════════════════ */
-
+/* ─── BOOT ───────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('modalOverlay').addEventListener('click', function(e){
     if (e.target === this) closeModal();
   });
-
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') closeModal();
   });
-
   init();
 });
