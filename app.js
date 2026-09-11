@@ -3,6 +3,9 @@
  * ZOOM G5n Patch Lab — Lógica principal
  *
  * Suporte completo a:
+ *  • Até 9 efeitos (G5n V2.0)
+ *  • Persistência com localStorage
+ *  • Busca de efeitos no modal
  *  • Parâmetros numéricos (slider drag)
  *  • Parâmetros de seleção (options[]) com clique para ciclar
  *  • Indicadores de pedal (P) e tempo (♩)
@@ -13,11 +16,15 @@
    ESTADO GLOBAL
    ════════════════════════════════════════════════ */
 
+const MAX_SLOTS = 9;          // G5n V2.0 permite até 9 efeitos
+const STORAGE_KEY = 'g5n-patch-lab-v1';
+
 let chain          = [];
 let patches        = [];
 let currentPatchId = 1;
 let editingSlotIdx = null;
 let filterCat      = 'ALL';
+let searchQuery    = '';
 
 /* ════════════════════════════════════════════════
    UTILITÁRIOS
@@ -46,12 +53,46 @@ function showToast(msg, color) {
 }
 
 /* ════════════════════════════════════════════════
+   PERSISTÊNCIA (localStorage)
+   ════════════════════════════════════════════════ */
+
+function saveToStorage() {
+  try {
+    var data = {
+      patches: patches,
+      currentPatchId: currentPatchId
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Não foi possível salvar no localStorage', e);
+  }
+}
+
+function loadFromStorage() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn('Erro ao ler localStorage', e);
+    return null;
+  }
+}
+
+/* ════════════════════════════════════════════════
    INICIALIZAÇÃO
    ════════════════════════════════════════════════ */
 
 function init() {
-  patches = DEFAULT_PATCHES.map(function(p){ return deepClone(p); });
-  loadPatch(patches[0].id);
+  var stored = loadFromStorage();
+  if (stored && stored.patches && stored.patches.length > 0) {
+    patches = stored.patches;
+    currentPatchId = stored.currentPatchId || patches[0].id;
+  } else {
+    patches = DEFAULT_PATCHES.map(function(p){ return deepClone(p); });
+    currentPatchId = patches[0].id;
+  }
+  loadPatch(currentPatchId);
 }
 
 /* ════════════════════════════════════════════════
@@ -72,6 +113,7 @@ function loadPatch(id) {
 
   renderChain();
   renderPatchList();
+  saveToStorage(); // lembra qual patch estava ativo
 }
 
 /* ════════════════════════════════════════════════
@@ -82,7 +124,16 @@ function renderChain() {
   var el = document.getElementById('signalChain');
   el.innerHTML = '';
 
-  document.getElementById('slotCount').textContent = chain.length + '/5';
+  var countEl = document.getElementById('slotCount');
+  countEl.textContent = chain.length + '/' + MAX_SLOTS;
+  // Destaque visual quando próximo do limite
+  if (chain.length >= MAX_SLOTS) {
+    countEl.style.color = 'var(--red)';
+  } else if (chain.length >= 7) {
+    countEl.style.color = 'var(--yellow)';
+  } else {
+    countEl.style.color = 'var(--accent2)';
+  }
 
   el.appendChild(makeNode('input-node', '🎸', 'GUITAR\nSGT-207'));
   el.appendChild(makeConnector('connector-start'));
@@ -97,7 +148,7 @@ function renderChain() {
     el.appendChild(slot);
   });
 
-  if (chain.length < 5) {
+  if (chain.length < MAX_SLOTS) {
     el.appendChild(makeConnector('connector' + (chain.length > 0 ? ' active' : '')));
     var addBtn = document.createElement('button');
     addBtn.className = 'add-btn';
@@ -291,8 +342,8 @@ function toggleFx(i, e) {
 }
 
 function addSlot() {
-  if (chain.length >= 5) {
-    showToast('MÁXIMO DE 5 EFEITOS', 'var(--red)');
+  if (chain.length >= MAX_SLOTS) {
+    showToast('MÁXIMO DE ' + MAX_SLOTS + ' EFEITOS (G5n V2.0)', 'var(--red)');
     return;
   }
   editingSlotIdx = null;
@@ -322,7 +373,12 @@ function openPickerForSlot(i) {
 
 function openModal() {
   filterCat = 'ALL';
+  searchQuery = '';
+  var searchEl = document.getElementById('fxSearch');
+  if (searchEl) searchEl.value = '';
   document.getElementById('modalOverlay').classList.remove('hidden');
+  // Foco no campo de busca para digitar rápido
+  setTimeout(function(){ if (searchEl) searchEl.focus(); }, 50);
   renderModalCats();
   renderFxGrid();
 }
@@ -330,6 +386,12 @@ function openModal() {
 function closeModal() {
   document.getElementById('modalOverlay').classList.add('hidden');
   editingSlotIdx = null;
+  searchQuery = '';
+}
+
+function onFxSearch(value) {
+  searchQuery = (value || '').trim().toLowerCase();
+  renderFxGrid();
 }
 
 function renderModalCats() {
@@ -357,6 +419,19 @@ function renderFxGrid() {
   cats.forEach(function(cat){
     FX_DB[cat].forEach(function(fx){ entries.push(Object.assign({}, fx, { cat: cat })); });
   });
+
+  // Filtro por busca (nome ou descrição)
+  if (searchQuery) {
+    entries = entries.filter(function(fx){
+      return fx.name.toLowerCase().indexOf(searchQuery) !== -1 ||
+             (fx.desc && fx.desc.toLowerCase().indexOf(searchQuery) !== -1);
+    });
+  }
+
+  if (entries.length === 0) {
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--muted);font-family:var(--mono);font-size:13px;letter-spacing:1px;">NENHUM EFEITO ENCONTRADO</div>';
+    return;
+  }
 
   el.innerHTML = entries.map(function(fx){
     var safeName = fx.name.replace(/'/g, "\\'");
@@ -421,6 +496,7 @@ function savePatch() {
     patches.push(data);
   }
 
+  saveToStorage();
   renderPatchList();
   showToast('✓ PATCH SALVO');
 }
@@ -437,6 +513,7 @@ function deleteCurrentPatch() {
     renderChain();
     renderPatchList();
   }
+  saveToStorage();
   showToast('PATCH EXCLUÍDO', 'var(--red)');
 }
 
@@ -448,6 +525,7 @@ function newPatch() {
   chain = [];
   renderChain();
   renderPatchList();
+  // Não salva ainda – só quando o usuário clicar em SALVAR PATCH
 }
 
 /* ════════════════════════════════════════════════

@@ -383,6 +383,32 @@ body::before {
 .modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px 10px; transition: color .15s; border-radius: 3px; }
 .modal-close:hover { color: var(--text); background: rgba(255,255,255,.06); }
 
+/* Search bar in modal */
+.modal-search {
+  padding: 12px 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.fx-search-input {
+  width: 100%;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.fx-search-input:focus {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 2px rgba(0,200,255,.15);
+}
+.fx-search-input::placeholder {
+  color: var(--muted);
+}
+
 .modal-cats { display: flex; gap: 6px; padding: 12px 20px; flex-wrap: wrap; border-bottom: 1px solid var(--border); }
 .cat-filter-btn {
   font-family: var(--mono); font-size: 9px; letter-spacing: 1px;

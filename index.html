@@ -18,8 +18,8 @@
              maxlength="16" autocomplete="off" spellcheck="false" />
     </div>
     <div class="guitar-badge">
-      <strong>STRATO SEVEN SGT-207</strong>
-      GUITARRA ATIVA · 7 CORDAS
+      <strong>STRATO SEVEN SGT-207 NT</strong>
+      BASSWOOD · SINGLE-COIL · 6 CORDAS
     </div>
   </header>
 
@@ -34,7 +34,7 @@
     <button class="btn danger"  onclick="deleteCurrentPatch()">EXCLUIR</button>
     <div class="slot-counter">
       <span class="slot-counter-label">SLOTS:</span>
-      <span class="slot-counter-val" id="slotCount">0/5</span>
+      <span class="slot-counter-val" id="slotCount">0/9</span>
     </div>
   </div>
 
@@ -50,6 +50,11 @@
       <div class="modal-header">
         <div class="modal-title">SELECIONAR EFEITO</div>
         <button class="modal-close" onclick="closeModal()" aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-search">
+        <input type="search" id="fxSearch" class="fx-search-input"
+               placeholder="Buscar efeito por nome..." autocomplete="off"
+               oninput="onFxSearch(this.value)" />
       </div>
       <div class="modal-cats" id="modalCats"></div>
       <div class="fx-grid"    id="fxGrid"></div>

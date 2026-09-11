@@ -2,7 +2,8 @@
 
 Simulador visual de patches para a pedaleira **ZOOM G5n**, baseado no manual oficial de efeitos (*Effect Types and Parameters*, 2015 ZOOM CORPORATION).
 
-Desenvolvido para a guitarra **Strato Seven SGT-207**.
+Desenvolvido para a guitarra **Strato Seven SGT-207 NT**  
+(Basswood body · Maple neck · 3 Single-coils passivos · 6 cordas · Ponte tremolo).
 
 ---
 
@@ -34,7 +35,9 @@ Abrir com duplo clique → index.html
 ## 🎛️ Funcionalidades
 
 ### Cadeia de Sinal
-- Monte até **5 efeitos em série**, do input da guitarra até o amp/saída
+- Monte até **9 efeitos em série** (limite do G5n V2.0)
+- **Persistência automática** via localStorage (patches não somem ao recarregar)
+- **Busca de efeitos** por nome/descrição no modal
 - Visualização em tempo real da cadeia de sinal com conectores animados
 - **Ligar/Desligar** cada efeito individualmente (LED verde)
 - **Trocar** qualquer efeito no slot sem perder a posição na cadeia
@@ -120,5 +123,7 @@ Código do documento: Z2I-2556-02
 DYNAMICS → FILTER → DRIVE → AMP → CABINET → MODULATION → DELAY → REVERB
 ```
 
-**Dica para a SGT-207 (7 cordas):**  
-Use o **ZNR** (Noise Reduction) no início da cadeia para cortar o ruído das cordas extras, especialmente com gains altos.
+**Dica para a SGT-207 NT (Strat single-coil):**  
+- Single-coils gostam de **Comp** ou **ZNR** no início para controlar ruído em gains altos.  
+- Amp models que combinam bem: **FD TWNR**, **UK 30A**, **MS 800** (canal LO).  
+- Use o campo de **busca** no seletor de efeitos para encontrar rapidamente o que precisa.

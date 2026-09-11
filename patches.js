@@ -1,11 +1,11 @@
 /**
  * patches.js
- * ZOOM G5n Patch Lab – 20 Patches para Strato Seven SGT-207
+ * ZOOM G5n Patch Lab – 20 Patches para Strato Seven SGT-207 NT
  *
  * Cadeia sugerida (ordem padrão):
  *  DYNAMICS → FILTER/PEDAL → DRIVE → AMP → CABINET → MODULATION → DELAY → REVERB
  *
- * Nota: patches com 7 cordas precisam de atenção extra ao ZNR nas cordas graves.
+ * Guitarra: Basswood body · Maple neck · 3 single-coils passivos · 6 cordas · tremolo.
  */
 
 const DEFAULT_PATCHES = [
@@ -49,7 +49,7 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 004 ── Metal 7 cordas – ZNR + MetalWRLD + MS800 + MS4x12 */
+  /* ── 004 ── Metal pesado – ZNR + MetalWRLD + MS800 + MS4x12 */
   {
     id: 4, name: 'METAL SGT',
     cats: ['DYNAMICS', 'DRIVE', 'AMP', 'CABINET', 'REVERB'],
@@ -99,7 +99,7 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 008 ── Prog metal 7 cordas – ZNR + XtasyBlue + BG MK3 */
+  /* ── 008 ── Prog metal – ZNR + XtasyBlue + BG MK3 */
   {
     id: 8, name: 'PROG METAL',
     cats: ['DYNAMICS', 'DRIVE', 'AMP', 'CABINET', 'REVERB'],
@@ -199,7 +199,7 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 016 ── Metal core 7 cordas – RedCrunch + MS800 + MS4x12 */
+  /* ── 016 ── Metalcore – RedCrunch + MS800 + MS4x12 */
   {
     id: 16, name: 'METALCORE',
     cats: ['DYNAMICS', 'DRIVE', 'AMP', 'CABINET', 'REVERB'],
@@ -237,7 +237,7 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 019 ── Djent / 7 cordas palm mute – ZNR + XtasyBlue STRCT HI */
+  /* ── 019 ── Djent palm mute – ZNR + XtasyBlue STRCT HI */
   {
     id: 19, name: 'DJENT SGT',
     cats: ['DYNAMICS', 'FILTER', 'DRIVE', 'AMP', 'CABINET'],
