@@ -7,15 +7,11 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <!-- TOPBAR -->
   <header class="topbar">
     <div class="logo">ZOOM <span>G5n</span> · PATCH LAB</div>
     <div class="patch-name-area">
       <div class="patch-num" id="currentPatchNum">001</div>
-      <input class="patch-name-input" id="patchNameInput"
-             type="text" placeholder="PATCH NAME"
-             maxlength="16" autocomplete="off" spellcheck="false" />
+      <input class="patch-name-input" id="patchNameInput" type="text" placeholder="PATCH NAME" maxlength="16" autocomplete="off" spellcheck="false" />
     </div>
     <div class="guitar-badge">
       <strong>STRATO SEVEN SGT-207 NT</strong>
@@ -23,93 +19,65 @@
     </div>
   </header>
 
-  <!-- ═══ HARDWARE PANEL (estilo G5n) ═══ -->
   <section class="hw-panel">
-
-    <!-- OVERVIEW DISPLAY -->
     <div class="overview-bar">
       <div class="overview-label">OVERVIEW</div>
       <div class="overview-chain" id="overviewChain"></div>
       <div class="overview-nav">
-        <button class="ov-nav-btn" id="unitPagePrev" onclick="shiftUnitPage(-1)" title="Unidades anteriores">◀</button>
+        <button class="ov-nav-btn" id="unitPagePrev" onclick="shiftUnitPage(-1)">◀</button>
         <span class="ov-page" id="unitPageLabel">1/1</span>
-        <button class="ov-nav-btn" id="unitPageNext" onclick="shiftUnitPage(1)" title="Próximas unidades">▶</button>
+        <button class="ov-nav-btn" id="unitPageNext" onclick="shiftUnitPage(1)">▶</button>
       </div>
     </div>
-
-    <!-- 4 UNIT DISPLAYS + FOOTSWITCHES + PEDAL -->
     <div class="units-row">
-      <div class="units-grid" id="unitsGrid">
-        <!-- preenchido por JS: até 4 units visíveis -->
-      </div>
-
-      <!-- Expression Pedal visual -->
+      <div class="units-grid" id="unitsGrid"></div>
       <div class="exp-pedal" title="Pedal de expressão">
         <div class="exp-pedal-body">
-          <div class="exp-pedal-surface" id="expPedalSurface"></div>
+          <div class="exp-pedal-surface"></div>
           <div class="exp-pedal-label">PEDAL</div>
         </div>
         <div class="exp-pedal-base"></div>
       </div>
     </div>
-
-    <!-- FOOTSWITCH ROW -->
-    <div class="fs-row" id="fsRow">
-      <!-- FS1–FS4 preenchidos por JS -->
-    </div>
-
+    <div class="fs-row" id="fsRow"></div>
   </section>
 
-  <!-- CONTROLS -->
   <div class="controls-row">
     <button class="btn primary" onclick="addSlot()">+ ADD EFEITO</button>
-    <button class="btn"         onclick="clearChain()">LIMPAR</button>
-    <button class="btn"         onclick="savePatch()">SALVAR PATCH</button>
-    <button class="btn danger"  onclick="deleteCurrentPatch()">EXCLUIR</button>
+    <button class="btn" onclick="clearChain()">LIMPAR</button>
+    <button class="btn" onclick="savePatch()">SALVAR PATCH</button>
+    <button class="btn danger" onclick="deleteCurrentPatch()">EXCLUIR</button>
     <div class="slot-counter">
       <span class="slot-counter-label">SLOTS:</span>
       <span class="slot-counter-val" id="slotCount">0/9</span>
     </div>
   </div>
 
-  <!-- DICA PEDALBOARD FÍSICO -->
   <section class="board-tip">
     <div class="section-title">▌ LAYOUT FÍSICO SUGERIDO (G5n + pedais)</div>
     <div class="board-flow">
-      <span class="board-node">GUITAR</span>
-      <span class="board-arrow">→</span>
-      <span class="board-node ext">WAH / VOLUME</span>
-      <span class="board-arrow">→</span>
-      <span class="board-node ext">OVERDRIVE</span>
-      <span class="board-arrow">→</span>
-      <span class="board-node g5n">ZOOM G5n</span>
-      <span class="board-arrow">→</span>
+      <span class="board-node">GUITAR</span><span class="board-arrow">→</span>
+      <span class="board-node ext">WAH / VOLUME</span><span class="board-arrow">→</span>
+      <span class="board-node ext">OVERDRIVE</span><span class="board-arrow">→</span>
+      <span class="board-node g5n">ZOOM G5n</span><span class="board-arrow">→</span>
       <span class="board-node">AMP</span>
     </div>
-    <p class="board-note">
-      Single-coils Strat: preferira compressão e ZNR dentro da G5n.
-      Pedais de drive externos (TS, boost) funcionam bem <strong>antes</strong> da G5n.
-      Delay/Reverb pesados ficam melhores <strong>dentro</strong> da G5n (após o amp model).
-    </p>
+    <p class="board-note">Single-coils: Comp/ZNR no início. Drive externo antes da G5n. Delay/Reverb dentro da G5n.</p>
   </section>
 
-  <!-- PATCH BANK -->
   <section class="patch-bank">
     <div class="section-title">▌ BANCO DE PATCHES</div>
     <div class="patch-list" id="patchList"></div>
   </section>
 
-  <!-- MODAL: SELETOR DE EFEITOS -->
   <div class="modal-overlay hidden" id="modalOverlay">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Selecionar Efeito">
+    <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-header">
         <div class="modal-title">SELECIONAR EFEITO</div>
-        <button class="modal-close" onclick="closeModal()" aria-label="Fechar">✕</button>
+        <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-search">
-        <input type="search" id="fxSearch" class="fx-search-input"
-               placeholder="Buscar efeito por nome..." autocomplete="off"
-               oninput="onFxSearch(this.value)" />
+        <input type="search" id="fxSearch" class="fx-search-input" placeholder="Buscar efeito..." autocomplete="off" oninput="onFxSearch(this.value)" />
       </div>
       <div class="modal-cats" id="modalCats"></div>
       <div class="fx-grid" id="fxGrid"></div>
@@ -119,6 +87,5 @@
   <script src="fx-database.js"></script>
   <script src="patches.js"></script>
   <script src="app.js"></script>
-
 </body>
 </html>

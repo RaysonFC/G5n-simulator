@@ -1,31 +1,68 @@
 /**
  * patches.js
- * ZOOM G5n Patch Lab – Patches otimizados para Strato Seven SGT-207 NT
+ * ZOOM G5n Patch Lab – Patches para Strato Seven SGT-207 NT
  *
- * Guitarra: Basswood body · Maple neck · 3 single-coils passivos · 6 cordas · tremolo
+ * Guitarra: Basswood · Maple · 3 single-coils passivos · 6 cordas · tremolo
  *
- * Ordem sugerida:
- *  DYNAMICS → FILTER/PEDAL → DRIVE → AMP → CABINET → MODULATION → DELAY → REVERB
+ * Inclui: clean encorpado, corinho de fogo, blues, rock, lead, ambient, etc.
  */
 
 const DEFAULT_PATCHES = [
 
-  /* ── 001 ── Clean Strat clássico */
+  /* ── 001 ── CLEAN ENC – Clean encorpado para ritmo ─────────── */
   {
-    id: 1, name: 'CLEAN STRAT',
-    cats: ['DYNAMICS', 'AMP', 'MODULATION', 'DELAY', 'REVERB'],
+    id: 1, name: 'CLEAN ENC',
+    cats: ['DYNAMICS', 'FILTER', 'AMP', 'MODULATION', 'REVERB'],
     chain: [
-      { name:'Comp', params:[{n:'Sense',v:5,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:6,max:10},{n:'VOL',v:80,max:100}] },
-      { name:'FD TWNR', params:[{n:'Bass',v:48,min:10,max:100},{n:'MID',v:50,min:10,max:100},{n:'Treble',v:55,min:10,max:100},{n:'BRGHT',v:1,max:1,options:['OFF','ON']},{n:'Gain',v:32,min:10,max:100},{n:'VOL',v:70,min:10,max:100},{n:'DEPTH',v:40,min:10,max:100},{n:'SPEED',v:45,min:10,max:100}] },
-      { name:'Chorus', params:[{n:'Depth',v:35,max:100},{n:'Rate',v:18,max:50},{n:'Tone',v:5,max:10},{n:'Mix',v:28,max:100}] },
-      { name:'Delay', params:[{n:'Time',v:380,min:1,max:4000,tempo:true},{n:'F.B',v:18,max:100},{n:'Mix',v:22,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
-      { name:'Room', params:[{n:'PreD',v:10,min:1,max:100},{n:'Decay',v:14,min:1,max:30},{n:'Mix',v:28,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'Comp', params:[{n:'Sense',v:7,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:6,max:10},{n:'VOL',v:82,max:100}] },
+      { name:'Gt GEQ', params:[{n:'160Hz',v:2,min:-12,max:12},{n:'400Hz',v:1,min:-12,max:12},{n:'800Hz',v:0,min:-12,max:12},{n:'3.2kHz',v:2,min:-12,max:12},{n:'6.4kHz',v:1,min:-12,max:12},{n:'12kHz',v:0,min:-12,max:12},{n:'VOL',v:80,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:55,min:10,max:100},{n:'MID',v:52,min:10,max:100},{n:'Treble',v:50,min:10,max:100},{n:'BRGHT',v:0,max:1,options:['OFF','ON']},{n:'Gain',v:28,min:10,max:100},{n:'VOL',v:72,min:10,max:100},{n:'DEPTH',v:35,min:10,max:100},{n:'SPEED',v:40,min:10,max:100}] },
+      { name:'Chorus', params:[{n:'Depth',v:25,max:100},{n:'Rate',v:14,max:50},{n:'Tone',v:5,max:10},{n:'Mix',v:18,max:100}] },
+      { name:'Room', params:[{n:'PreD',v:8,min:1,max:100},{n:'Decay',v:12,min:1,max:30},{n:'Mix',v:22,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
     ]
   },
 
-  /* ── 002 ── Blues texano / SRV vibe */
+  /* ── 002 ── CORINHO – Corinho de fogo / louvor ritmo ───────── */
   {
-    id: 2, name: 'BLUES TX',
+    id: 2, name: 'CORINHO',
+    cats: ['DYNAMICS', 'FILTER', 'AMP', 'DELAY', 'REVERB'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:8,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:6,max:10},{n:'VOL',v:85,max:100}] },
+      { name:'Gt GEQ7', params:[{n:'100Hz',v:3,min:-12,max:12},{n:'200Hz',v:2,min:-12,max:12},{n:'400Hz',v:1,min:-12,max:12},{n:'800Hz',v:0,min:-12,max:12},{n:'1.6kHz',v:2,min:-12,max:12},{n:'3.2kHz',v:3,min:-12,max:12},{n:'6.4kHz',v:1,min:-12,max:12},{n:'VOL',v:82,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:58,min:10,max:100},{n:'MID',v:55,min:10,max:100},{n:'Treble',v:52,min:10,max:100},{n:'BRGHT',v:1,max:1,options:['OFF','ON']},{n:'Gain',v:30,min:10,max:100},{n:'VOL',v:74,min:10,max:100},{n:'DEPTH',v:30,min:10,max:100},{n:'SPEED',v:40,min:10,max:100}] },
+      { name:'Delay', params:[{n:'Time',v:280,min:1,max:4000,tempo:true},{n:'F.B',v:12,max:100},{n:'Mix',v:15,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'Plate', params:[{n:'PreD',v:10,min:1,max:200},{n:'Decay',v:35,max:100},{n:'Mix',v:20,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 003 ── CLEAN BRIGHT – Clean brilhante Strat ───────────── */
+  {
+    id: 3, name: 'CLEAN BRT',
+    cats: ['DYNAMICS', 'AMP', 'MODULATION', 'REVERB'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:5,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:7,max:10},{n:'VOL',v:80,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:45,min:10,max:100},{n:'MID',v:48,min:10,max:100},{n:'Treble',v:60,min:10,max:100},{n:'BRGHT',v:1,max:1,options:['OFF','ON']},{n:'Gain',v:30,min:10,max:100},{n:'VOL',v:70,min:10,max:100},{n:'DEPTH',v:35,min:10,max:100},{n:'SPEED',v:42,min:10,max:100}] },
+      { name:'StereoCho', params:[{n:'Depth',v:30,max:100},{n:'Rate',v:16,max:50},{n:'Tone',v:6,max:10},{n:'Mix',v:25,max:100}] },
+      { name:'Spring', params:[{n:'PreD',v:10,min:1,max:100},{n:'Decay',v:14,min:1,max:30},{n:'Mix',v:28,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 004 ── LOUVOR LEAD – Solo de louvor ───────────────────── */
+  {
+    id: 4, name: 'LOUVOR LD',
+    cats: ['DYNAMICS', 'DRIVE', 'AMP', 'DELAY', 'REVERB'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:6,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:5,max:10},{n:'VOL',v:80,max:100}] },
+      { name:'TS Drive', params:[{n:'Gain',v:42,max:100},{n:'Boost',v:0,max:1,options:['OFF','ON']},{n:'Tone',v:55,max:100},{n:'VOL',v:74,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:50,min:10,max:100},{n:'MID',v:52,min:10,max:100},{n:'Treble',v:55,min:10,max:100},{n:'BRGHT',v:0,max:1,options:['OFF','ON']},{n:'Gain',v:40,min:10,max:100},{n:'VOL',v:70,min:10,max:100},{n:'DEPTH',v:40,min:10,max:100},{n:'SPEED',v:45,min:10,max:100}] },
+      { name:'Delay', params:[{n:'Time',v:420,min:1,max:4000,tempo:true},{n:'F.B',v:28,max:100},{n:'Mix',v:30,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'Hall', params:[{n:'PreD',v:18,min:1,max:100},{n:'Decay',v:22,min:1,max:30},{n:'Mix',v:28,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 005 ── BLUES TX – Blues texano ───────────────────────── */
+  {
+    id: 5, name: 'BLUES TX',
     cats: ['DYNAMICS', 'DRIVE', 'AMP', 'DELAY', 'REVERB'],
     chain: [
       { name:'Comp', params:[{n:'Sense',v:6,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:5,max:10},{n:'VOL',v:80,max:100}] },
@@ -36,9 +73,9 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 003 ── Crunch britânico */
+  /* ── 006 ── BRIT CRUNCH ─────────────────────────────────────── */
   {
-    id: 3, name: 'BRIT CRUNCH',
+    id: 6, name: 'BRIT CRNCH',
     cats: ['DRIVE', 'AMP', 'CABINET', 'DELAY', 'REVERB'],
     chain: [
       { name:'EP Stomp', params:[{n:'Gain',v:40,max:100},{n:'Bass',v:0,min:-10,max:10},{n:'Treble',v:2,min:-10,max:10},{n:'VOL',v:72,max:100}] },
@@ -49,9 +86,9 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 004 ── Lead moderno (Bogner) */
+  /* ── 007 ── LEAD BGN ────────────────────────────────────────── */
   {
-    id: 4, name: 'LEAD BGN',
+    id: 7, name: 'LEAD BGN',
     cats: ['DRIVE', 'AMP', 'MODULATION', 'DELAY', 'REVERB'],
     chain: [
       { name:'TS Drive', params:[{n:'Gain',v:50,max:100},{n:'Boost',v:0,max:1,options:['OFF','ON']},{n:'Tone',v:52,max:100},{n:'VOL',v:75,max:100}] },
@@ -62,9 +99,9 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 005 ── Funk Wah */
+  /* ── 008 ── FUNK WAH ────────────────────────────────────────── */
   {
-    id: 5, name: 'FUNK WAH',
+    id: 8, name: 'FUNK WAH',
     cats: ['PEDAL', 'AMP', 'MODULATION', 'DELAY'],
     chain: [
       { name:'BlackWah', params:[{n:'FREQ',v:50,max:100,pedal:true},{n:'Range',v:60,max:100},{n:'Dry',v:0,max:100},{n:'VOL',v:80,max:100}] },
@@ -74,9 +111,9 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 006 ── Edge / U2 delay */
+  /* ── 009 ── THE EDGE ────────────────────────────────────────── */
   {
-    id: 6, name: 'THE EDGE',
+    id: 9, name: 'THE EDGE',
     cats: ['DRIVE', 'AMP', 'MODULATION', 'DELAY'],
     chain: [
       { name:'RC Boost', params:[{n:'Gain',v:32,max:100},{n:'Bass',v:48,max:100},{n:'Treble',v:55,max:100},{n:'VOL',v:75,max:100}] },
@@ -86,21 +123,21 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 007 ── Acústico simulado */
+  /* ── 010 ── ACOUSTIC ────────────────────────────────────────── */
   {
-    id: 7, name: 'ACOUSTIC',
+    id: 10, name: 'ACOUSTIC',
     cats: ['DYNAMICS', 'DRIVE', 'MODULATION', 'REVERB'],
     chain: [
       { name:'Comp', params:[{n:'Sense',v:6,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:5,max:10},{n:'VOL',v:80,max:100}] },
-      { name:'Aco.Sim', params:[{n:'Top',v:65,max:100},{n:'Body',v:68,max:100},{n:'Tone',v:55,max:100},{n:'VOL',v:72,max:100}] },
-      { name:'Chorus', params:[{n:'Depth',v:32,max:100},{n:'Rate',v:16,max:50},{n:'Tone',v:5,max:10},{n:'Mix',v:28,max:100}] },
-      { name:'Plate', params:[{n:'PreD',v:15,min:1,max:200},{n:'Decay',v:45,max:100},{n:'Mix',v:36,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'Aco.Sim', params:[{n:'Top',v:65,max:100},{n:'Body',v:70,max:100},{n:'Tone',v:55,max:100},{n:'VOL',v:74,max:100}] },
+      { name:'Chorus', params:[{n:'Depth',v:30,max:100},{n:'Rate',v:15,max:50},{n:'Tone',v:5,max:10},{n:'Mix',v:26,max:100}] },
+      { name:'Plate', params:[{n:'PreD',v:14,min:1,max:200},{n:'Decay',v:42,max:100},{n:'Mix',v:36,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
     ]
   },
 
-  /* ── 008 ── Gilmour / Pink Floyd */
+  /* ── 011 ── GILMOUR ─────────────────────────────────────────── */
   {
-    id: 8, name: 'GILMOUR',
+    id: 11, name: 'GILMOUR',
     cats: ['DRIVE', 'AMP', 'MODULATION', 'DELAY', 'REVERB'],
     chain: [
       { name:'SweetDrv', params:[{n:'Gain',v:42,max:100},{n:'Tone',v:55,max:100},{n:'Focus',v:50,max:100},{n:'VOL',v:72,max:100}] },
@@ -111,9 +148,9 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 009 ── Hard rock clássico */
+  /* ── 012 ── HARD ROCK ───────────────────────────────────────── */
   {
-    id: 9, name: 'HARD ROCK',
+    id: 12, name: 'HARD ROCK',
     cats: ['DYNAMICS', 'DRIVE', 'AMP', 'DELAY', 'REVERB'],
     chain: [
       { name:'ZNR', params:[{n:'DETCT',v:0,max:1,options:['GTRIN','EFXIN']},{n:'Depth',v:55,max:100},{n:'THRSH',v:40,max:100},{n:'Decay',v:40,max:100}] },
@@ -124,9 +161,9 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 010 ── Smooth jazz */
+  /* ── 013 ── SMOOTH JZ ───────────────────────────────────────── */
   {
-    id: 10, name: 'SMOOTH JZ',
+    id: 13, name: 'SMOOTH JZ',
     cats: ['DYNAMICS', 'AMP', 'MODULATION', 'DELAY', 'REVERB'],
     chain: [
       { name:'Comp', params:[{n:'Sense',v:7,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:6,max:10},{n:'VOL',v:82,max:100}] },
@@ -137,9 +174,9 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 011 ── Strings / pad atmosférico */
+  /* ── 014 ── STRINGS / pad ───────────────────────────────────── */
   {
-    id: 11, name: 'STRINGS',
+    id: 14, name: 'STRINGS',
     cats: ['DYNAMICS', 'AMP', 'MODULATION', 'REVERB'],
     chain: [
       { name:'SlowATTCK', params:[{n:'Time',v:32,max:50},{n:'Curve',v:6,max:10},{n:'Tone',v:55,max:100},{n:'VOL',v:80,max:100}] },
@@ -149,14 +186,77 @@ const DEFAULT_PATCHES = [
     ]
   },
 
-  /* ── 012 ── Looper jam */
+  /* ── 015 ── CLEAN ARPG – Arpejos limpos ─────────────────────── */
   {
-    id: 12, name: 'LOOPER JAM',
-    cats: ['DYNAMICS', 'AMP', 'RHYTHM', 'LOOPER'],
+    id: 15, name: 'CLEAN ARPG',
+    cats: ['DYNAMICS', 'AMP', 'MODULATION', 'DELAY', 'REVERB'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:6,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:6,max:10},{n:'VOL',v:80,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:48,min:10,max:100},{n:'MID',v:50,min:10,max:100},{n:'Treble',v:55,min:10,max:100},{n:'BRGHT',v:0,max:1,options:['OFF','ON']},{n:'Gain',v:32,min:10,max:100},{n:'VOL',v:70,min:10,max:100},{n:'DEPTH',v:40,min:10,max:100},{n:'SPEED',v:45,min:10,max:100}] },
+      { name:'StereoCho', params:[{n:'Depth',v:45,max:100},{n:'Rate',v:18,max:50},{n:'Tone',v:5,max:10},{n:'Mix',v:38,max:100}] },
+      { name:'Delay', params:[{n:'Time',v:520,min:1,max:4000,tempo:true},{n:'F.B',v:18,max:100},{n:'Mix',v:22,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'Room', params:[{n:'PreD',v:8,min:1,max:100},{n:'Decay',v:13,min:1,max:30},{n:'Mix',v:28,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 016 ── COUNTRY CLN – Country / chicken pickin' ─────────── */
+  {
+    id: 16, name: 'COUNTRY',
+    cats: ['DYNAMICS', 'AMP', 'DELAY', 'REVERB'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:8,max:10},{n:'ATTCK',v:1,max:1,options:['SLOW','FAST']},{n:'Tone',v:6,max:10},{n:'VOL',v:82,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:48,min:10,max:100},{n:'MID',v:50,min:10,max:100},{n:'Treble',v:58,min:10,max:100},{n:'BRGHT',v:1,max:1,options:['OFF','ON']},{n:'Gain',v:34,min:10,max:100},{n:'VOL',v:72,min:10,max:100},{n:'DEPTH',v:30,min:10,max:100},{n:'SPEED',v:40,min:10,max:100}] },
+      { name:'Delay', params:[{n:'Time',v:180,min:1,max:4000,tempo:true},{n:'F.B',v:8,max:100},{n:'Mix',v:18,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'Spring', params:[{n:'PreD',v:8,min:1,max:100},{n:'Decay',v:12,min:1,max:30},{n:'Mix',v:25,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 017 ── ADORACAO – Ballad / adoração ────────────────────── */
+  {
+    id: 17, name: 'ADORACAO',
+    cats: ['DYNAMICS', 'AMP', 'MODULATION', 'DELAY', 'REVERB'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:6,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:5,max:10},{n:'VOL',v:80,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:52,min:10,max:100},{n:'MID',v:50,min:10,max:100},{n:'Treble',v:50,min:10,max:100},{n:'BRGHT',v:0,max:1,options:['OFF','ON']},{n:'Gain',v:28,min:10,max:100},{n:'VOL',v:68,min:10,max:100},{n:'DEPTH',v:40,min:10,max:100},{n:'SPEED',v:42,min:10,max:100}] },
+      { name:'Chorus', params:[{n:'Depth',v:40,max:100},{n:'Rate',v:12,max:50},{n:'Tone',v:5,max:10},{n:'Mix',v:30,max:100}] },
+      { name:'Delay', params:[{n:'Time',v:550,min:1,max:4000,tempo:true},{n:'F.B',v:30,max:100},{n:'Mix',v:28,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'HD Hall', params:[{n:'PreD',v:25,min:1,max:200},{n:'Decay',v:55,max:100},{n:'Mix',v:35,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 018 ── CRUNCH GOSP – Crunch gospel / rock gospel ───────── */
+  {
+    id: 18, name: 'CRUNCH GP',
+    cats: ['DYNAMICS', 'DRIVE', 'AMP', 'DELAY', 'REVERB'],
     chain: [
       { name:'Comp', params:[{n:'Sense',v:5,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:5,max:10},{n:'VOL',v:80,max:100}] },
-      { name:'FD TWNR', params:[{n:'Bass',v:50,min:10,max:100},{n:'MID',v:50,min:10,max:100},{n:'Treble',v:52,min:10,max:100},{n:'BRGHT',v:0,max:1,options:['OFF','ON']},{n:'Gain',v:38,min:10,max:100},{n:'VOL',v:70,min:10,max:100},{n:'DEPTH',v:40,min:10,max:100},{n:'SPEED',v:45,min:10,max:100}] },
-      { name:'Rhythm', params:[{n:'PATTERN',v:8,min:1,max:68},{n:'BPM',v:100,min:40,max:250},{n:'VOL',v:55,max:100}] },
+      { name:'TS Drive', params:[{n:'Gain',v:45,max:100},{n:'Boost',v:0,max:1,options:['OFF','ON']},{n:'Tone',v:52,max:100},{n:'VOL',v:74,max:100}] },
+      { name:'MS 800', params:[{n:'Input',v:0,max:1,options:['LO','HI']},{n:'Bass',v:52,max:100},{n:'MID',v:50,max:100},{n:'Treble',v:52,max:100},{n:'PRSNC',v:50,max:100},{n:'Gain',v:48,max:100},{n:'VOL',v:70,max:100},{n:'SOLO',v:5,min:1,max:9}] },
+      { name:'Delay', params:[{n:'Time',v:360,min:1,max:4000,tempo:true},{n:'F.B',v:20,max:100},{n:'Mix',v:22,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+      { name:'Room', params:[{n:'PreD',v:12,min:1,max:100},{n:'Decay',v:15,min:1,max:30},{n:'Mix',v:24,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 019 ── PERC CLEAN – Clean percussivo (mutes, palm) ─────── */
+  {
+    id: 19, name: 'PERC CLN',
+    cats: ['DYNAMICS', 'FILTER', 'AMP', 'REVERB'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:8,max:10},{n:'ATTCK',v:1,max:1,options:['SLOW','FAST']},{n:'Tone',v:6,max:10},{n:'VOL',v:84,max:100}] },
+      { name:'ParaEQ', params:[{n:'FREQ',v:55,max:100},{n:'Q',v:40,max:100},{n:'Gain',v:3,min:-12,max:12},{n:'VOL',v:80,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:50,min:10,max:100},{n:'MID',v:55,min:10,max:100},{n:'Treble',v:55,min:10,max:100},{n:'BRGHT',v:1,max:1,options:['OFF','ON']},{n:'Gain',v:28,min:10,max:100},{n:'VOL',v:72,min:10,max:100},{n:'DEPTH',v:25,min:10,max:100},{n:'SPEED',v:35,min:10,max:100}] },
+      { name:'Air', params:[{n:'Size',v:35,min:1,max:100},{n:'REF',v:3,max:10},{n:'Mix',v:15,max:100},{n:'Tail',v:1,max:1,options:['OFF','ON']}] },
+    ]
+  },
+
+  /* ── 020 ── LOOPER JAM ──────────────────────────────────────── */
+  {
+    id: 20, name: 'LOOPER JAM',
+    cats: ['DYNAMICS', 'AMP', 'RHYTHM', 'LOOPER'],
+    chain: [
+      { name:'Comp', params:[{n:'Sense',v:6,max:10},{n:'ATTCK',v:0,max:1,options:['SLOW','FAST']},{n:'Tone',v:5,max:10},{n:'VOL',v:80,max:100}] },
+      { name:'FD TWNR', params:[{n:'Bass',v:50,min:10,max:100},{n:'MID',v:50,min:10,max:100},{n:'Treble',v:52,min:10,max:100},{n:'BRGHT',v:0,max:1,options:['OFF','ON']},{n:'Gain',v:36,min:10,max:100},{n:'VOL',v:70,min:10,max:100},{n:'DEPTH',v:40,min:10,max:100},{n:'SPEED',v:45,min:10,max:100}] },
+      { name:'Rhythm', params:[{n:'PATTERN',v:8,min:1,max:68},{n:'BPM',v:110,min:40,max:250},{n:'VOL',v:55,max:100}] },
       { name:'LP-STEREO', params:[{n:'Undo',v:1,max:1,options:['OFF','ON']},{n:'Stop',v:0,max:2,options:['STOP','FINISH','FADEOUT']},{n:'VOL',v:80,max:100}] },
     ]
   },
