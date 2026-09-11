@@ -19,15 +19,6 @@
     </div>
   </header>
 
-  <!-- Banco de patches em carrossel (acima da cadeia) -->
-  <section class="patch-bank">
-    <div class="patch-bank-header">
-      <div class="section-title">▌ BANCO DE PATCHES</div>
-      <div class="patch-carousel-hint">← deslize →</div>
-    </div>
-    <div class="patch-list" id="patchList"></div>
-  </section>
-
   <section class="hw-panel">
     <div class="overview-bar">
       <div class="overview-label">OVERVIEW</div>
@@ -61,6 +52,23 @@
       <span class="slot-counter-val" id="slotCount">0/9</span>
     </div>
   </div>
+
+  <section class="board-tip">
+    <div class="section-title">▌ LAYOUT FÍSICO SUGERIDO (G5n + pedais)</div>
+    <div class="board-flow">
+      <span class="board-node">GUITAR</span><span class="board-arrow">→</span>
+      <span class="board-node ext">WAH / VOLUME</span><span class="board-arrow">→</span>
+      <span class="board-node ext">OVERDRIVE</span><span class="board-arrow">→</span>
+      <span class="board-node g5n">ZOOM G5n</span><span class="board-arrow">→</span>
+      <span class="board-node">AMP</span>
+    </div>
+    <p class="board-note">Single-coils: Comp/ZNR no início. Drive externo antes da G5n. Delay/Reverb dentro da G5n.</p>
+  </section>
+
+  <section class="patch-bank">
+    <div class="section-title">▌ BANCO DE PATCHES</div>
+    <div class="patch-list" id="patchList"></div>
+  </section>
 
   <div class="modal-overlay hidden" id="modalOverlay">
     <div class="modal" role="dialog" aria-modal="true">
