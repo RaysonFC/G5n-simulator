@@ -143,5 +143,280 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .fx-option-params{font-family:var(--mono);font-size:8px;color:var(--border);letter-spacing:1px;text-transform:uppercase}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:12px;letter-spacing:2px;padding:10px 22px;border-radius:4px;z-index:9000;opacity:0;transition:.25s;pointer-events:none;text-transform:uppercase}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-width:1100px){.units-grid{grid-template-columns:repeat(2,1fr)}.fs-row{grid-template-columns:repeat(2,1fr);padding-right:0}.exp-pedal{display:none}}
-@media(max-width:640px){.topbar{padding:10px 14px}.hw-panel{margin:10px;padding:10px}.units-grid{grid-template-columns:1fr}.guitar-badge{display:none}.patch-name-input{width:120px}}
+/* ── Responsive ── */
+
+/* Tablet landscape / small desktop */
+@media (max-width: 1100px) {
+  .units-grid { grid-template-columns: repeat(2, 1fr); }
+  .fs-row { grid-template-columns: repeat(2, 1fr); padding-right: 0; }
+  .exp-pedal { display: none; }
+  .patch-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+/* Tablet portrait */
+@media (max-width: 800px) {
+  .topbar {
+    padding: 10px 16px;
+    gap: 10px;
+  }
+  .logo { font-size: 16px; letter-spacing: 2px; }
+  .patch-num { font-size: 22px; min-width: 40px; }
+  .patch-name-input { width: 160px; font-size: 16px; }
+  .hw-panel { margin: 12px 14px; padding: 12px; }
+  .overview-bar { gap: 8px; padding: 6px 10px; min-height: 46px; }
+  .ov-node { font-size: 8px; padding: 5px 8px; }
+  .units-grid { gap: 8px; }
+  .unit-card { min-height: 240px; }
+  .controls-row { padding: 10px 16px; gap: 8px; }
+  .btn { padding: 7px 12px; font-size: 10px; letter-spacing: 1.5px; }
+  .board-tip, .patch-bank { padding-left: 16px; padding-right: 16px; }
+  .fx-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  .modal { max-height: 90vh; }
+}
+
+/* Mobile large – mantém 2 colunas nos units (igual tablet) */
+@media (max-width: 640px) {
+  .topbar {
+    padding: 8px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .logo {
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    text-align: center;
+  }
+  .patch-name-area {
+    justify-content: center;
+    gap: 10px;
+  }
+  .patch-num { font-size: 20px; min-width: 36px; }
+  .patch-name-input {
+    width: 140px;
+    font-size: 15px;
+    text-align: center;
+  }
+  .guitar-badge { display: none; }
+
+  .hw-panel {
+    margin: 8px 10px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .overview-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 8px;
+    min-height: auto;
+  }
+  .overview-label {
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 8px;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 1.5px;
+  }
+  .overview-chain {
+    width: 100%;
+    justify-content: flex-start;
+    order: 2;
+  }
+  .overview-nav {
+    width: 100%;
+    justify-content: center;
+    order: 3;
+  }
+
+  /* 2 colunas no mobile (como no tablet) */
+  .units-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .unit-card { min-height: 210px; }
+  .unit-name { font-size: 13px; }
+  .knob-label { width: 34px; font-size: 8px; }
+  .knob-val { width: 24px; font-size: 8px; }
+  .knob-select { font-size: 8px; }
+
+  .fs-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    padding-right: 0;
+  }
+  .fs-btn { height: 40px; font-size: 10px; }
+  .fs-btn .fs-name { font-size: 8px; }
+
+  .controls-row {
+    padding: 10px 12px;
+    gap: 6px;
+    justify-content: center;
+  }
+  .slot-counter {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+    order: -1;
+    margin-bottom: 4px;
+  }
+  .btn {
+    padding: 8px 10px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .board-tip {
+    padding: 12px 12px 6px;
+  }
+  .board-flow { gap: 4px; }
+  .board-node {
+    font-size: 9px;
+    padding: 6px 8px;
+  }
+  .board-note { font-size: 11px; }
+
+  .patch-bank {
+    padding: 12px 12px 24px;
+  }
+  .section-title { font-size: 9px; letter-spacing: 2px; }
+  .patch-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px;
+  }
+  .patch-item { padding: 8px 10px; }
+  .patch-item-name { font-size: 13px; }
+
+  /* Modal mobile */
+  .modal-overlay { padding: 10px; }
+  .modal {
+    max-height: 92vh;
+    border-radius: 6px;
+  }
+  .modal-header { padding: 12px 14px; }
+  .modal-title { font-size: 15px; }
+  .modal-search { padding: 10px 14px 0; }
+  .fx-search-input { padding: 9px 12px; font-size: 12px; }
+  .modal-cats { padding: 10px 14px; gap: 5px; }
+  .cat-filter-btn { font-size: 8px; padding: 3px 8px; }
+  .fx-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 12px 14px;
+  }
+  .fx-option { padding: 10px 12px; }
+  .fx-option-name { font-size: 14px; }
+  .fx-option-desc { font-size: 10px; }
+
+  .toast {
+    font-size: 11px;
+    padding: 8px 16px;
+    bottom: 16px;
+    max-width: 90%;
+    text-align: center;
+  }
+}
+
+/* Mobile small (down to ~360px) – continua com 2 colunas */
+@media (max-width: 400px) {
+  .topbar { padding: 6px 10px; gap: 6px; }
+  .logo { font-size: 12px; letter-spacing: 1px; }
+  .patch-num { font-size: 18px; min-width: 32px; }
+  .patch-name-input {
+    width: 120px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .hw-panel {
+    margin: 6px 8px;
+    padding: 8px;
+  }
+
+  .overview-bar { padding: 5px 6px; gap: 4px; }
+  .ov-node {
+    font-size: 7px;
+    padding: 4px 6px;
+    letter-spacing: 0.5px;
+  }
+  .ov-arrow { font-size: 8px; }
+  .ov-nav-btn { width: 24px; height: 24px; font-size: 10px; }
+  .ov-page { font-size: 10px; min-width: 28px; }
+
+  .units-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .unit-card { min-height: 190px; border-radius: 6px; }
+  .unit-header { padding: 6px 8px; }
+  .unit-name { font-size: 12px; padding: 6px 8px 2px; }
+  .unit-knobs { padding: 2px 8px 6px; gap: 5px; }
+  .knob-label { width: 30px; font-size: 7px; }
+  .knob-val { width: 22px; font-size: 7px; }
+  .knob-select { font-size: 7px; padding: 1px 3px; }
+  .unit-actions { padding: 0 8px 8px; gap: 4px; }
+  .unit-action-btn { font-size: 8px; padding: 4px 4px; }
+
+  .fs-row { gap: 6px; margin-top: 8px; }
+  .fs-btn { height: 36px; font-size: 9px; letter-spacing: 1px; }
+  .fs-btn .fs-name { font-size: 7px; }
+
+  .controls-row {
+    padding: 8px 10px;
+    gap: 5px;
+  }
+  .btn {
+    padding: 7px 6px;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+  }
+  .slot-counter-label { font-size: 9px; }
+  .slot-counter-val { font-size: 12px; }
+
+  .board-tip { padding: 10px 10px 4px; }
+  .board-node {
+    font-size: 8px;
+    padding: 5px 6px;
+    letter-spacing: 0.5px;
+  }
+  .board-arrow { font-size: 11px; }
+  .board-note { font-size: 10px; line-height: 1.4; }
+
+  .patch-bank { padding: 10px 10px 20px; }
+  .section-title { font-size: 8px; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .patch-list {
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .patch-item { padding: 7px 8px; gap: 6px; }
+  .patch-num-small { font-size: 10px; min-width: 24px; }
+  .patch-item-name { font-size: 12px; }
+  .patch-item-fx { font-size: 9px; }
+
+  .modal-overlay { padding: 6px; }
+  .modal-header { padding: 10px 12px; }
+  .modal-title { font-size: 14px; letter-spacing: 1px; }
+  .modal-search { padding: 8px 12px 0; }
+  .fx-search-input { padding: 8px 10px; font-size: 11px; }
+  .modal-cats { padding: 8px 12px; gap: 4px; }
+  .cat-filter-btn { font-size: 7px; padding: 3px 6px; }
+  .fx-grid { padding: 10px 12px; gap: 5px; }
+  .fx-option { padding: 8px 10px; }
+  .fx-option-name { font-size: 13px; }
+  .fx-option-desc { font-size: 9px; }
+  .fx-option-params { font-size: 7px; }
+}
+
+/* Extra small safety */
+@media (max-width: 340px) {
+  .logo { font-size: 11px; }
+  .patch-name-input { width: 100px; font-size: 12px; }
+  .btn { font-size: 8px; padding: 6px 4px; }
+  .unit-card { min-height: 180px; }
+  .unit-name { font-size: 11px; }
+}
